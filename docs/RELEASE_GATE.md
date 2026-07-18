@@ -23,6 +23,30 @@ project risk record, not legal advice.
 - **Compatibility review:** release targets API v13 and firmware 1.17.0. Record
   any API or firmware compatibility changes found during delivery.
 
+## AC-003 review record
+
+- **Review date:** 2026-07-18.
+- **Approved Spec:** SHA-256
+  `19ddd4d1fc8268c0af9b1cba53d7ff77c2745d1c47fb375f2c3df9029476fb1b`.
+- **Release-name review:** Burl is the recorded public name. The existing U.S.
+  BURL wordmark was reviewed and accepted by the owner as a known, low risk,
+  with no claim of trademark rights and a willingness to rename after a
+  credible conflict or objection.
+- **Attribution review:** the exact subordinate historical attribution and
+  non-endorsement wording approved for release is retained below.
+- **Relevant-rights review:** project-original software is MIT-licensed;
+  third-party code or protected expression may not be copied; and the MIT
+  License does not cover third-party names, schematics, artwork, manuals,
+  designs, or trademarks. The Expert Sleepers API header is not currently
+  vendored and its version and license must be recorded if it becomes a
+  distributed dependency.
+
+**Review conclusion:** the public name, attribution wording, and relevant
+third-party-rights posture required by AC-003 have been reviewed and recorded.
+This conclusion completes that decision gate but does not authorize a release:
+the remaining unchecked delivery evidence below must still be completed. No
+public source or binary distribution is performed by this review.
+
 ## Required release attribution
 
 > Burl is an independently developed digital instrument that recreates selected observable behaviours of the Benjolin, a 2009 DIY/workshop instrument designed by Rob Hordijk. The reference architecture combines two wide-range oscillators, a voltage-controlled filter, and Hordijk’s feedback shift-register pattern generator, called the Rungler. This project is not affiliated with, sponsored by, approved by, or endorsed by the original designer’s successors, After Later Audio, Epoch Modular, or Macumbista. Third-party names are used only to identify the historical instrument studied. The MIT License applies only to this project’s original software and files expressly covered by its license notice.
