@@ -31,10 +31,14 @@ The test suite currently verifies:
 - complemented recirculation after eight shifts and return after sixteen;
 - a 127-state non-zero maximal-length recurrence;
 - eight exact monotonic stepped-CV levels spanning -5 V to +5 V;
-- deterministic reset and prevention of zero lock in 127 mode; and
-- repeatability of intermediate Change decisions.
+- deterministic reset and prevention of zero lock in 127 mode;
+- repeatability of intermediate Change decisions; and
+- bit-exact repeated pattern renders across the supported sample-rate and
+  quality-mode contexts.
 
-No hardware artifact is produced yet.
+The retained render matrix and its current product-level limitation are
+recorded in [the determinism verification](docs/DETERMINISM.md). No hardware
+artifact is produced yet.
 
 ## Independence, attribution, and release gate
 
