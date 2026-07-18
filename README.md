@@ -54,7 +54,9 @@ The test suite currently verifies:
 - API v13 factory metadata, parameter/page layout, all nine `None`-safe input
   routes, 64-bus output addressing, and Add/Replace output mixing;
 - the frozen `ThBu` factory/positional parameter ABI and bit-exact Seeded
-  restoration after a simulated host parameter round-trip; and
+  restoration after a simulated host parameter round-trip;
+- allocation-free, state-preserving runtime Quality changes across the exact
+  declared SRAM and DTC footprints; and
 - safety-limited stress operation at all five supported sample rates and all
   three quality modes, including AddressSanitizer and UndefinedBehaviorSanitizer
   verification.
@@ -65,10 +67,12 @@ mapping is recorded in the [stepped-CV verification](docs/STEPPED_CV.md), the
 comparator crossing in the [PWM verification](docs/PWM_COMPARATOR.md), and
 internal-normal replacement in the
 [source-routing verification](docs/SOURCE_ROUTING.md), the complete DSP state
-restoration in the [reset verification](docs/RESET.md), and the positional ABI
-and Seeded load behavior in the
-[preset verification](docs/PRESETS.md). The full numerical and sanitizer matrix
-is recorded in the [stress verification](docs/STRESS_TEST.md). Native build and
+restoration in the [reset verification](docs/RESET.md), the positional ABI and
+Seeded load behavior in the [preset verification](docs/PRESETS.md), and runtime
+quality transitions in the
+[quality-switching verification](docs/QUALITY_SWITCHING.md). The full numerical
+and sanitizer matrix is recorded in the
+[stress verification](docs/STRESS_TEST.md). Native build and
 live-device results are recorded in
 [the hardware verification](docs/NATIVE_BUILD_AND_HARDWARE.md).
 

@@ -4,16 +4,55 @@
 #include <distingnt/api.h>
 
 #include <assert.h>
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <new>
 #include <vector>
+
+std::size_t gHeapAllocationCount = 0u;
+
+void* operator new(std::size_t size) {
+    ++gHeapAllocationCount;
+    void* const memory = std::malloc(size == 0u ? 1u : size);
+    if (memory == nullptr)
+        throw std::bad_alloc();
+    return memory;
+}
+
+void* operator new[](std::size_t size) {
+    ++gHeapAllocationCount;
+    void* const memory = std::malloc(size == 0u ? 1u : size);
+    if (memory == nullptr)
+        throw std::bad_alloc();
+    return memory;
+}
+
+void operator delete(void* memory) noexcept {
+    std::free(memory);
+}
+
+void operator delete[](void* memory) noexcept {
+    std::free(memory);
+}
 
 namespace {
 
 int gDrawCalls = 0;
 bool gDrewBurl = false;
+bool gDrewActive = false;
+char gLastPattern[9] = {};
+
+bool isPatternText(const char* text) {
+    for (unsigned int index = 0u; index < 8u; ++index) {
+        if (text[index] != '0' && text[index] != '1')
+            return false;
+    }
+    return text[8] == '\0';
+}
 
 } // namespace
 
@@ -26,6 +65,10 @@ void NT_drawText(int, int, const char* text, int, _NT_textAlignment,
     ++gDrawCalls;
     if (std::strcmp(text, "Burl") == 0)
         gDrewBurl = true;
+    if (std::strcmp(text, "Active") == 0)
+        gDrewActive = true;
+    if (isPatternText(text))
+        std::memcpy(gLastPattern, text, sizeof(gLastPattern));
 }
 
 int NT_floatToString(char* buffer, float value, int decimalPlaces) {
@@ -331,6 +374,163 @@ void testPluginIntegration() {
     std::free(sram);
 }
 
+const std::size_t kMemoryGuardBytes = 64u;
+const unsigned char kMemoryGuardValue = 0xa5u;
+
+class GuardedMemory {
+public:
+    explicit GuardedMemory(std::size_t payloadBytes)
+        : payloadBytes_(payloadBytes),
+          storage_(payloadBytes + 2u * kMemoryGuardBytes, kMemoryGuardValue) {
+        std::fill(storage_.begin() + kMemoryGuardBytes,
+                  storage_.begin() + kMemoryGuardBytes + payloadBytes_, 0u);
+    }
+
+    uint8_t* data() {
+        return storage_.data() + kMemoryGuardBytes;
+    }
+
+    bool guardsIntact() const {
+        for (std::size_t index = 0u; index < kMemoryGuardBytes; ++index) {
+            if (storage_[index] != kMemoryGuardValue
+                || storage_[kMemoryGuardBytes + payloadBytes_ + index]
+                    != kMemoryGuardValue) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+private:
+    std::size_t payloadBytes_;
+    std::vector<unsigned char> storage_;
+};
+
+void assertActiveOutputBlock(const std::vector<float>& buses, int numFrames) {
+    for (int frame = 0; frame < numFrames; ++frame) {
+        bool active = false;
+        for (int bus = 12; bus < 20; ++bus) {
+            const float value = buses[bus * numFrames + frame];
+            assert(std::isfinite(value));
+            assert(value >= -10.0f && value <= 10.0f);
+            active = active || value != 0.0f;
+        }
+        assert(active);
+    }
+}
+
+void testRuntimeQualitySwitching() {
+    const _NT_factory* factory = reinterpret_cast<const _NT_factory*>(
+        pluginEntry(kNT_selector_factoryInfo, 0));
+    assert(factory != nullptr);
+
+    _NT_algorithmRequirements requirements = {};
+    factory->calculateRequirements(requirements, nullptr);
+    assert(requirements.sram > 0u);
+    assert(requirements.dtc > 0u);
+    assert(requirements.dram == 0u);
+    assert(requirements.itc == 0u);
+
+    GuardedMemory sram(requirements.sram);
+    GuardedMemory dtc(requirements.dtc);
+    const _NT_algorithmMemoryPtrs pointers = {
+        sram.data(), nullptr, dtc.data(), nullptr
+    };
+    _NT_algorithm* const algorithm = factory->construct(
+        pointers, requirements, nullptr);
+    assert(algorithm != nullptr);
+
+    std::vector<int16_t> values(requirements.numParameters);
+    for (uint32_t index = 0; index < requirements.numParameters; ++index)
+        values[index] = algorithm->parameters[index].def;
+    algorithm->v = values.data();
+    algorithm->vIncludingCommon = values.data();
+
+    const char* const outputNames[] = {
+        "Low-pass output", "Band-pass output", "High-pass output",
+        "Stepped CV output", "PWM output", "XOR output",
+        "Aux A output", "Aux B output"
+    };
+    for (std::size_t index = 0u;
+         index < sizeof(outputNames) / sizeof(outputNames[0]); ++index) {
+        const int output = findParameter(
+            algorithm, requirements.numParameters, outputNames[index]);
+        assert(output >= 0);
+        values[output + 1] = 1;
+    }
+    for (uint32_t index = 0; index < requirements.numParameters; ++index)
+        factory->parameterChanged(algorithm, static_cast<int>(index));
+
+    const int qualityParameter = findParameter(
+        algorithm, requirements.numParameters, "Quality");
+    assert(qualityParameter >= 0);
+    const _NT_parameter* const originalParameters = algorithm->parameters;
+    const _NT_parameterPages* const originalPages = algorithm->parameterPages;
+    const int16_t* const originalValues = algorithm->v;
+    const int16_t* const originalCommonValues = algorithm->vIncludingCommon;
+
+    const int numFrames = static_cast<int>(NT_globals.maxFramesPerStep);
+    assert(numFrames > 0 && (numFrames % 4) == 0);
+    std::vector<float> buses(
+        static_cast<std::size_t>(kNT_lastBus) * numFrames, 0.0f);
+
+    // Establish non-reset oscillator, filter, pattern, clock, and display state.
+    for (unsigned int block = 0u; block < 32u; ++block) {
+        std::fill(buses.begin(), buses.end(), 0.0f);
+        factory->step(algorithm, buses.data(), numFrames / 4);
+    }
+    assertActiveOutputBlock(buses, numFrames);
+
+    const int qualitySequence[] = {0, 2, 1, 2, 0, 1};
+    const unsigned int switchBlocks = 192u;
+    for (unsigned int block = 0u; block < switchBlocks; ++block) {
+        gDrewActive = false;
+        factory->draw(algorithm);
+        assert(gDrewActive);
+        char patternBefore[sizeof(gLastPattern)];
+        std::memcpy(patternBefore, gLastPattern, sizeof(patternBefore));
+
+        values[qualityParameter] = static_cast<int16_t>(
+            qualitySequence[block
+                % (sizeof(qualitySequence) / sizeof(qualitySequence[0]))]);
+        const std::size_t allocationsBeforeChange = gHeapAllocationCount;
+        factory->parameterChanged(algorithm, qualityParameter);
+        assert(gHeapAllocationCount == allocationsBeforeChange);
+
+        // A quality callback must preserve the active running state and every
+        // host-owned pointer; only the cached quality factor may change.
+        assert(algorithm == reinterpret_cast<_NT_algorithm*>(sram.data()));
+        assert(algorithm->parameters == originalParameters);
+        assert(algorithm->parameterPages == originalPages);
+        assert(algorithm->v == originalValues);
+        assert(algorithm->vIncludingCommon == originalCommonValues);
+        gDrewActive = false;
+        std::memset(gLastPattern, 0, sizeof(gLastPattern));
+        factory->draw(algorithm);
+        assert(gDrewActive);
+        assert(std::memcmp(patternBefore, gLastPattern,
+                           sizeof(patternBefore)) == 0);
+        assert(sram.guardsIntact());
+        assert(dtc.guardsIntact());
+
+        std::fill(buses.begin(), buses.end(), 0.0f);
+        const std::size_t allocationsBeforeStep = gHeapAllocationCount;
+        factory->step(algorithm, buses.data(), numFrames / 4);
+        assert(gHeapAllocationCount == allocationsBeforeStep);
+        assertActiveOutputBlock(buses, numFrames);
+        assert(sram.guardsIntact());
+        assert(dtc.guardsIntact());
+    }
+
+    _NT_algorithmRequirements afterSwitching = {};
+    factory->calculateRequirements(afterSwitching, nullptr);
+    assert(afterSwitching.numParameters == requirements.numParameters);
+    assert(afterSwitching.sram == requirements.sram);
+    assert(afterSwitching.dram == requirements.dram);
+    assert(afterSwitching.dtc == requirements.dtc);
+    assert(afterSwitching.itc == requirements.itc);
+}
+
 void testPresetCompatibility() {
     const _NT_factory* factory = reinterpret_cast<const _NT_factory*>(
         pluginEntry(kNT_selector_factoryInfo, 0));
@@ -414,6 +614,7 @@ void testPresetCompatibility() {
 
 int main() {
     testPluginIntegration();
+    testRuntimeQualitySwitching();
     testPresetCompatibility();
     std::puts("All Burl plug-in integration tests passed");
     return EXIT_SUCCESS;

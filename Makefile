@@ -38,7 +38,7 @@ VOICE_STRESS_SANITIZER_BINARY := $(BUILD_DIR)/voice_stress_test_sanitize
 PLUGIN_TEST_BINARY := $(BUILD_DIR)/plugin_integration_test
 PLUGIN_TEST_SOURCES := tests/plugin_integration_test.cpp $(PLUGIN_SOURCES)
 
-.PHONY: all test stress-sanitize hardware check size verify push clean
+.PHONY: all test stress-sanitize hardware check check-allocations size verify push clean
 
 all: test hardware
 
@@ -96,10 +96,19 @@ check: hardware
 	@echo "Undefined symbols supplied by the disting NT host/runtime:"
 	@$(ARM_NM) -u $(PLUGIN_OUTPUT)
 
+check-allocations: hardware
+	@symbols="$$($(ARM_NM) -u $(PLUGIN_OUTPUT) | awk '{ print $$NF }' | grep -E '^(malloc|calloc|realloc|free|_Zn[aw].*|_Zd[al].*)$$' || true)"; \
+	if [ -n "$$symbols" ]; then \
+		echo "Forbidden dynamic-allocation symbols:"; \
+		echo "$$symbols"; \
+		exit 1; \
+	fi
+	@echo "No dynamic-allocation symbols referenced by $(PLUGIN_OUTPUT)"
+
 size: hardware
 	$(ARM_SIZE) -A $(PLUGIN_OUTPUT)
 
-verify: test stress-sanitize hardware check size
+verify: test stress-sanitize hardware check check-allocations size
 
 push: hardware
 	$(NTPUSH) $(PLUGIN_OUTPUT)
