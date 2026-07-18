@@ -53,21 +53,36 @@ void testComplementedRecirculationHasSixteenShiftCycle() {
     }
 }
 
+// AC-007: every valid seed must traverse the complete non-zero seven-bit state
+// space exactly once before returning to that seed on the 127th shift.
 void testMaximalRecurrenceVisits127NonZeroStates() {
     for (unsigned int seed = 1u; seed <= 127u; ++seed) {
         burl::PatternGenerator generator(static_cast<uint8_t>(seed));
         generator.setMode(burl::PatternGenerator::Maximal127);
         const uint8_t initial = generator.state();
         bool visited[128] = {};
+        unsigned int visitedCount = 0u;
 
         for (int shift = 0; shift < 127; ++shift) {
             const uint8_t state = generator.state();
-            expect(state != 0u, "127 recurrence must never enter zero");
-            expect(!visited[state], "127 recurrence must not repeat before 127 shifts");
-            visited[state] = true;
+            const bool validState = state > 0u && state <= 127u;
+            expect(validState, "127 recurrence must remain in the non-zero seven-bit state space");
+            if (validState) {
+                expect(!visited[state], "127 recurrence must not repeat before 127 shifts");
+                if (!visited[state]) {
+                    visited[state] = true;
+                    ++visitedCount;
+                }
+            }
             generator.clock(0.5f, 0.0f);
         }
 
+        expect(visitedCount == 127u,
+               "127 recurrence must visit exactly 127 unique non-zero states");
+        for (unsigned int state = 1u; state <= 127u; ++state) {
+            expect(visited[state],
+                   "127 recurrence must visit every non-zero seven-bit state");
+        }
         expect(generator.state() == initial,
                "127 recurrence must repeat its initial state on shift 127");
     }
