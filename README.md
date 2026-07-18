@@ -7,25 +7,33 @@ a triangle comparator, and a resonant multimode filter.
 
 ## Project status
 
-Burl is in active development. The repository currently contains a host-tested
-integrated DSP voice with two reflected triangle oscillators, the deterministic
-feedback shift-register pattern generator, a triangle comparator, a two-pole
-state-variable filter, internal/external source replacement, and Eco/Normal/High
-internal-rate processing. **It is not yet a loadable disting NT plug-in and is
-not ready for hardware use or public binary distribution.**
+Burl is in active development. The repository contains a loadable disting NT
+C++ API v13 plug-in, factory GUID `ThBu`, plus its host-tested integrated DSP
+voice. The plug-in exposes 50 parameters on 11 standard pages, nine optional
+input routes, and eight independently routed Add/Replace outputs.
 
-The release target is disting NT C++ API v13 on firmware 1.17.0. The eventual
-hardware product will be a C++11 Cortex-M7 hard-float position-independent
-relocatable `Burl.o` plug-in. Released parameter order and the factory GUID will
-be frozen when that integration is introduced.
+The relocatable Cortex-M7 object has been built, pushed, scanned, and loaded on
+disting NT firmware 1.17.0. Live hardware produced all eight default outputs;
+the retained build and bench record is in
+[the native build and hardware verification](docs/NATIVE_BUILD_AND_HARDWARE.md).
+**This development artifact is not yet approved for public distribution.** The
+remaining release gates and owner acceptance checks continue to apply.
 
 ## Build and test
 
-A C++11 compiler and Make are required for the host tests:
+A C++11 host compiler, GNU Arm Embedded C++ compiler, and Make are required for
+full verification. Clone with submodules, or initialize the pinned official
+disting NT API checkout before building:
 
 ```sh
-make test
+git submodule update --init --recursive
+make verify
 ```
+
+`make verify` runs the complete host/sanitizer suite, cross-compiles
+`plugins/Burl.o`, checks its unresolved firmware/runtime symbols, and reports
+its section sizes. With a connected module, `make push` transfers the object
+using NT Push. Generated objects remain ignored by Git.
 
 The test suite currently verifies:
 
@@ -43,6 +51,8 @@ The test suite currently verifies:
   triangle crossing with unchanged oscillator pulse directions;
 - replacement (not addition) of both oscillator triangle normals and the
   oscillator-2 clock normal when their external routes are selected; and
+- API v13 factory metadata, parameter/page layout, all nine `None`-safe input
+  routes, 64-bus output addressing, and Add/Replace output mixing; and
 - safety-limited stress operation at all five supported sample rates and all
   three quality modes, including AddressSanitizer and UndefinedBehaviorSanitizer
   verification.
@@ -55,8 +65,16 @@ internal-normal replacement in the
 [source-routing verification](docs/SOURCE_ROUTING.md), and the complete DSP
 state restoration in the [reset verification](docs/RESET.md). The full
 numerical and sanitizer matrix is recorded in the
-[stress verification](docs/STRESS_TEST.md). No hardware artifact is produced
-yet.
+[stress verification](docs/STRESS_TEST.md). Native build and live-device
+results are recorded in
+[the hardware verification](docs/NATIVE_BUILD_AND_HARDWARE.md).
+
+## disting NT API dependency
+
+The official `expertsleepersltd/distingNT_API` repository is included as the
+`distingNT_API` Git submodule and pinned to a reviewed commit. This keeps the
+firmware ABI header, examples, and native build surface available to every
+checkout without copying or reimplementing the vendor API.
 
 ## Independence, attribution, and release gate
 

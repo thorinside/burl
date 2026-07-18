@@ -25,6 +25,10 @@ VoiceParameters::VoiceParameters()
       filterFeedback(0.5f),
       externalCutoffModulation(0.0f),
       externalInputMix(0.0f),
+      changeCvAmount(0.0f),
+      resonanceCvAmount(0.0f),
+      mixCvAmount(0.0f),
+      inputDrive(1.0f),
       useExternalOscillator1Cv(false),
       useExternalOscillator2Cv(false),
       useExternalClock(false),
@@ -34,11 +38,14 @@ VoiceParameters::VoiceParameters()
       quality(QualityNormal),
       dacMsbTap(7u),
       dacMiddleTap(5u),
-      dacLsbTap(3u) {}
+      dacLsbTap(3u),
+      auxASource(AuxOscillator1Triangle),
+      auxBSource(AuxOscillator2Triangle) {}
 
 VoiceInputs::VoiceInputs()
     : oscillator1Cv(0.0f), oscillator2Cv(0.0f), externalClock(0.0f),
-      filterAudio(0.0f), cutoffCv(0.0f) {}
+      filterAudio(0.0f), cutoffCv(0.0f), changeCv(0.0f),
+      resonanceCv(0.0f), mixCv(0.0f), reset(0.0f) {}
 
 VoiceOutputs::VoiceOutputs()
     : lowPass(0.0f), bandPass(0.0f), highPass(0.0f), steppedCv(0.0f),
@@ -55,6 +62,7 @@ Voice::Voice(float sampleRate, uint8_t seed)
       steppedCv_(0.0f),
       previousInternalPulseHigh_(false),
       externalClockHigh_(false),
+      resetInputHigh_(false),
       status_() {
     setSampleRate(sampleRate);
     reset();
@@ -114,14 +122,23 @@ void Voice::reset() {
                               parameters_.dacLsbTap);
     previousInternalPulseHigh_ = oscillator2_.direction > 0.0f;
     externalClockHigh_ = false;
+    resetInputHigh_ = false;
 
     status_.oscillator1Triangle = oscillator1_.triangle * 5.0f;
     status_.oscillator2Triangle = oscillator2_.triangle * 5.0f;
+    status_.steppedCv = steppedCv_;
     status_.patternState = pattern_.state();
+    status_.externalClock = parameters_.useExternalClock;
     status_.active = false;
 }
 
 VoiceOutputs Voice::process(const VoiceInputs& inputs) {
+    if (resetEdge(inputs.reset)) {
+        const bool resetInputHigh = resetInputHigh_;
+        reset();
+        resetInputHigh_ = resetInputHigh;
+    }
+
     VoiceOutputs accumulated;
     const unsigned int factor = qualityFactor(parameters_.quality);
     const float internalSampleRate = sampleRate_ * static_cast<float>(factor);
@@ -156,7 +173,9 @@ VoiceOutputs Voice::process(const VoiceInputs& inputs) {
 
     status_.oscillator1Triangle = oscillator1_.triangle * 5.0f;
     status_.oscillator2Triangle = oscillator2_.triangle * 5.0f;
+    status_.steppedCv = steppedCv_;
     status_.patternState = pattern_.state();
+    status_.externalClock = parameters_.useExternalClock;
     status_.active = true;
     return accumulated;
 }
@@ -208,6 +227,34 @@ float Voice::advanceOscillator(OscillatorState& oscillator, float frequency,
     return oscillator.triangle;
 }
 
+float Voice::selectAux(AuxSource source, float oscillator1Triangle,
+                       float oscillator1Pulse, float oscillator2Triangle,
+                       float oscillator2Pulse, const VoiceOutputs& outputs) {
+    switch (source) {
+    case AuxOscillator1Triangle:
+        return oscillator1Triangle;
+    case AuxOscillator1Pulse:
+        return oscillator1Pulse;
+    case AuxOscillator2Triangle:
+        return oscillator2Triangle;
+    case AuxOscillator2Pulse:
+        return oscillator2Pulse;
+    case AuxPwm:
+        return outputs.pwm;
+    case AuxRegisterXor:
+        return outputs.registerXor;
+    case AuxSteppedCv:
+        return outputs.steppedCv;
+    case AuxLowPass:
+        return outputs.lowPass;
+    case AuxBandPass:
+        return outputs.bandPass;
+    case AuxHighPass:
+        return outputs.highPass;
+    }
+    return 0.0f;
+}
+
 bool Voice::clockEdge(float internalPulse, float externalClock) {
     if (!parameters_.useExternalClock) {
         const bool pulseHigh = internalPulse > 0.0f;
@@ -219,15 +266,26 @@ bool Voice::clockEdge(float internalPulse, float externalClock) {
 
     const bool wasHigh = externalClockHigh_;
     const float conditionedClock = finiteClamp(externalClock, 12.0f);
-    if (!externalClockHigh_ && conditionedClock >= 1.0f) {
+    if (!externalClockHigh_ && conditionedClock >= 2.0f) {
         externalClockHigh_ = true;
-    } else if (externalClockHigh_ && conditionedClock <= -1.0f) {
+    } else if (externalClockHigh_ && conditionedClock <= 0.2f) {
         externalClockHigh_ = false;
     }
 
     const bool changed = externalClockHigh_ != wasHigh;
     const bool rising = externalClockHigh_ && !wasHigh;
     return parameters_.doubleEdgeClock ? changed : rising;
+}
+
+bool Voice::resetEdge(float resetInput) {
+    const float conditionedReset = finiteClamp(resetInput, 12.0f);
+    const bool wasHigh = resetInputHigh_;
+    if (!resetInputHigh_ && conditionedReset >= 2.0f) {
+        resetInputHigh_ = true;
+    } else if (resetInputHigh_ && conditionedReset <= 0.2f) {
+        resetInputHigh_ = false;
+    }
+    return resetInputHigh_ && !wasHigh;
 }
 
 VoiceOutputs Voice::processInternal(const VoiceInputs& inputs,
@@ -266,29 +324,39 @@ VoiceOutputs Voice::processInternal(const VoiceInputs& inputs,
     const float internalPulse = oscillator2_.direction > 0.0f ? 5.0f : -5.0f;
 
     const float internalAudio = 2.5f * (triangle1 + triangle2);
-    const float inputMix = clamp(parameters_.externalInputMix, 0.0f, 1.0f);
+    const float inputMix = clamp(
+        parameters_.externalInputMix
+            + parameters_.mixCvAmount
+                * (finiteClamp(inputs.mixCv, 10.0f) / 5.0f),
+        0.0f, 1.0f);
     const float filterInput = internalAudio * (1.0f - inputMix)
         + finiteClamp(inputs.filterAudio, 12.0f) * inputMix;
+    const float drivenFilterInput = filterInput
+        * clamp(parameters_.inputDrive, 0.25f, 4.0f);
     const float cutoffOctaves = clamp(
         parameters_.filterFeedback * (previousSteppedCv / 5.0f)
             + parameters_.externalCutoffModulation
-                * finiteClamp(inputs.cutoffCv, 10.0f),
+                * (finiteClamp(inputs.cutoffCv, 10.0f) / 5.0f),
         -16.0f, 16.0f);
     const float cutoff = clamp(
         clamp(parameters_.filterCutoffHz, 1.0f, internalSampleRate * 0.45f)
             * std::pow(2.0f, cutoffOctaves),
         1.0f, internalSampleRate * 0.45f);
     const float g = std::tan(kPi * cutoff / internalSampleRate);
-    const float damping = 2.0f
-        - 1.95f * clamp(parameters_.filterResonance, 0.0f, 1.0f);
+    const float resonance = clamp(
+        parameters_.filterResonance
+            + parameters_.resonanceCvAmount
+                * (finiteClamp(inputs.resonanceCv, 10.0f) / 5.0f),
+        0.0f, 1.0f);
+    const float damping = 2.0f - 1.95f * resonance;
     const float a1 = 1.0f / (1.0f + g * (g + damping));
     const float a2 = g * a1;
     const float a3 = g * a2;
-    const float v3 = filterInput - filter_.integrator2;
+    const float v3 = drivenFilterInput - filter_.integrator2;
     const float bandPass = a1 * filter_.integrator1 + a2 * v3;
     const float lowPass = filter_.integrator2
         + a2 * filter_.integrator1 + a3 * v3;
-    const float highPass = filterInput - damping * bandPass - lowPass;
+    const float highPass = drivenFilterInput - damping * bandPass - lowPass;
     filter_.integrator1 = finiteClamp(
         2.0f * bandPass - filter_.integrator1, 100.0f);
     filter_.integrator2 = finiteClamp(
@@ -301,12 +369,23 @@ VoiceOutputs Voice::processInternal(const VoiceInputs& inputs,
     output.steppedCv = previousSteppedCv;
     output.pwm = triangle2 > triangle1 ? 5.0f : -5.0f;
     output.registerXor = pattern_.bit(0u) != pattern_.bit(7u) ? 5.0f : -5.0f;
-    output.auxA = triangle1 * 5.0f;
-    output.auxB = triangle2 * 5.0f;
+    const float oscillator1Pulse = oscillator1_.direction > 0.0f ? 5.0f : -5.0f;
+    const float oscillator2Pulse = oscillator2_.direction > 0.0f ? 5.0f : -5.0f;
+    output.auxA = selectAux(parameters_.auxASource, triangle1 * 5.0f,
+                            oscillator1Pulse, triangle2 * 5.0f,
+                            oscillator2Pulse, output);
+    output.auxB = selectAux(parameters_.auxBSource, triangle1 * 5.0f,
+                            oscillator1Pulse, triangle2 * 5.0f,
+                            oscillator2Pulse, output);
 
     if (clockEdge(internalPulse, inputs.externalClock)) {
         const float comparator = clamp(triangle2 - triangle1, -1.0f, 1.0f);
-        pattern_.clock(parameters_.change, comparator);
+        const float change = clamp(
+            parameters_.change
+                + 0.5f * parameters_.changeCvAmount
+                    * (finiteClamp(inputs.changeCv, 10.0f) / 5.0f),
+            0.0f, 1.0f);
+        pattern_.clock(change, comparator);
         steppedCv_ = pattern_.dac(parameters_.dacMsbTap,
                                   parameters_.dacMiddleTap,
                                   parameters_.dacLsbTap);

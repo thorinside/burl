@@ -16,6 +16,20 @@ enum QualityMode {
     QualityHigh
 };
 
+/** Signals available to either selectable auxiliary output. */
+enum AuxSource {
+    AuxOscillator1Triangle,
+    AuxOscillator1Pulse,
+    AuxOscillator2Triangle,
+    AuxOscillator2Pulse,
+    AuxPwm,
+    AuxRegisterXor,
+    AuxSteppedCv,
+    AuxLowPass,
+    AuxBandPass,
+    AuxHighPass
+};
+
 /** Host-rate controls for the self-contained Burl DSP voice. */
 struct VoiceParameters {
     float oscillator1Hz;
@@ -30,6 +44,10 @@ struct VoiceParameters {
     float filterFeedback;
     float externalCutoffModulation;
     float externalInputMix;
+    float changeCvAmount;
+    float resonanceCvAmount;
+    float mixCvAmount;
+    float inputDrive;
     bool useExternalOscillator1Cv;
     bool useExternalOscillator2Cv;
     bool useExternalClock;
@@ -40,6 +58,8 @@ struct VoiceParameters {
     unsigned int dacMsbTap;
     unsigned int dacMiddleTap;
     unsigned int dacLsbTap;
+    AuxSource auxASource;
+    AuxSource auxBSource;
 
     VoiceParameters();
 };
@@ -51,6 +71,10 @@ struct VoiceInputs {
     float externalClock;
     float filterAudio;
     float cutoffCv;
+    float changeCv;
+    float resonanceCv;
+    float mixCv;
+    float reset;
 
     VoiceInputs();
 };
@@ -73,7 +97,9 @@ struct VoiceOutputs {
 struct VoiceStatus {
     float oscillator1Triangle;
     float oscillator2Triangle;
+    float steppedCv;
     uint8_t patternState;
+    bool externalClock;
     bool active;
 };
 
@@ -118,8 +144,12 @@ private:
     static unsigned int qualityFactor(QualityMode quality);
     static float advanceOscillator(OscillatorState& oscillator, float frequency,
                                    float internalSampleRate);
+    static float selectAux(AuxSource source, float oscillator1Triangle,
+                           float oscillator1Pulse, float oscillator2Triangle,
+                           float oscillator2Pulse, const VoiceOutputs& outputs);
 
     bool clockEdge(float internalPulse, float externalClock);
+    bool resetEdge(float resetInput);
     VoiceOutputs processInternal(const VoiceInputs& inputs,
                                  float internalSampleRate);
 
@@ -133,6 +163,7 @@ private:
     float steppedCv_;
     bool previousInternalPulseHigh_;
     bool externalClockHigh_;
+    bool resetInputHigh_;
     VoiceStatus status_;
 };
 
