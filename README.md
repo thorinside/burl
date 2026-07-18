@@ -33,7 +33,7 @@ The test suite currently verifies:
 - complemented recirculation after eight shifts and return after sixteen;
 - a 127-state non-zero maximal-length recurrence;
 - eight exact monotonic stepped-CV levels spanning -5 V to +5 V;
-- deterministic reset and prevention of zero lock in 127 mode;
+- complete deterministic voice reset and prevention of zero lock in 127 mode;
 - repeatability of intermediate Change decisions;
 - bit-exact repeated pattern renders across the supported sample-rate and
   quality-mode contexts;
@@ -52,9 +52,11 @@ The retained render matrices and zero-tolerance comparison are recorded in
 mapping is recorded in the [stepped-CV verification](docs/STEPPED_CV.md), the
 comparator crossing in the [PWM verification](docs/PWM_COMPARATOR.md), and
 internal-normal replacement in the
-[source-routing verification](docs/SOURCE_ROUTING.md). The full numerical and
-sanitizer matrix is recorded in the [stress verification](docs/STRESS_TEST.md).
-No hardware artifact is produced yet.
+[source-routing verification](docs/SOURCE_ROUTING.md), and the complete DSP
+state restoration in the [reset verification](docs/RESET.md). The full
+numerical and sanitizer matrix is recorded in the
+[stress verification](docs/STRESS_TEST.md). No hardware artifact is produced
+yet.
 
 ## Independence, attribution, and release gate
 
