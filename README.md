@@ -52,7 +52,9 @@ The test suite currently verifies:
 - replacement (not addition) of both oscillator triangle normals and the
   oscillator-2 clock normal when their external routes are selected; and
 - API v13 factory metadata, parameter/page layout, all nine `None`-safe input
-  routes, 64-bus output addressing, and Add/Replace output mixing; and
+  routes, 64-bus output addressing, and Add/Replace output mixing;
+- the frozen `ThBu` factory/positional parameter ABI and bit-exact Seeded
+  restoration after a simulated host parameter round-trip; and
 - safety-limited stress operation at all five supported sample rates and all
   three quality modes, including AddressSanitizer and UndefinedBehaviorSanitizer
   verification.
@@ -62,11 +64,12 @@ The retained render matrices and zero-tolerance comparison are recorded in
 mapping is recorded in the [stepped-CV verification](docs/STEPPED_CV.md), the
 comparator crossing in the [PWM verification](docs/PWM_COMPARATOR.md), and
 internal-normal replacement in the
-[source-routing verification](docs/SOURCE_ROUTING.md), and the complete DSP
-state restoration in the [reset verification](docs/RESET.md). The full
-numerical and sanitizer matrix is recorded in the
-[stress verification](docs/STRESS_TEST.md). Native build and live-device
-results are recorded in
+[source-routing verification](docs/SOURCE_ROUTING.md), the complete DSP state
+restoration in the [reset verification](docs/RESET.md), and the positional ABI
+and Seeded load behavior in the
+[preset verification](docs/PRESETS.md). The full numerical and sanitizer matrix
+is recorded in the [stress verification](docs/STRESS_TEST.md). Native build and
+live-device results are recorded in
 [the hardware verification](docs/NATIVE_BUILD_AND_HARDWARE.md).
 
 ## disting NT API dependency

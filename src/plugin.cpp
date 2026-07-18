@@ -29,6 +29,8 @@ constexpr _NT_parameterPage makePage(const char* name, uint8_t count,
     return { name, count, 0, { 0, 0 }, parameters };
 }
 
+// Presets identify the factory by GUID and store these parameters positionally.
+// This order is the Burl v1 preset ABI: do not reorder or rename entries.
 enum Parameter {
     kParamOscillator1Frequency,
     kParamOscillator2Frequency,
@@ -211,6 +213,11 @@ static const _NT_parameter kParameters[] = {
 
 static_assert(arrayCount(kParameters) == kNumParameters,
               "Burl parameter table mismatch");
+static_assert(kNumParameters == 50 && kParamSeed == 14
+                  && kParamOscillator1CvInput == 25
+                  && kParamLowPassOutput == 34
+                  && kParamAuxBOutputMode == 49,
+              "Burl v1 positional preset ABI changed");
 
 static const uint8_t kMainPage[] = {
     kParamOscillator1Frequency, kParamOscillator2Frequency, kParamChange,
@@ -582,6 +589,7 @@ int parameterString(_NT_algorithm*, int parameter, int value, char* buffer) {
     return 0;
 }
 
+// ThBu is the frozen Burl v1 preset identity.
 static const _NT_factory kFactory = {
     NT_MULTICHAR('T', 'h', 'B', 'u'),
     "Burl",

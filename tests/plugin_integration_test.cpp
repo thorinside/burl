@@ -56,6 +56,96 @@ void reseed(const _NT_factory* factory, _NT_algorithm* algorithm,
     factory->parameterChanged(algorithm, parameter);
 }
 
+void assertFrozenPresetAbi(const _NT_factory* factory,
+                           const _NT_algorithm* algorithm, uint32_t count) {
+    static const char* const kV1ParameterNames[] = {
+        "Osc 1 frequency", "Osc 2 frequency", "Change", "Cutoff",
+        "Resonance", "Input mix", "Osc 1 feedback", "Osc 2 feedback",
+        "Osc 1 CV amount", "Osc 2 CV amount", "Change CV amount",
+        "Steps mode", "Clock rate", "DAC taps", "Seed", "Reseed",
+        "Stepped to cutoff", "Filter CV amount", "Resonance CV amount",
+        "Mix CV amount", "Input drive", "Output limit", "Quality",
+        "Aux A source", "Aux B source", "Osc 1 CV input",
+        "Osc 2 CV input", "Filter CV input", "External audio input",
+        "Clock input", "Change CV input", "Resonance CV input",
+        "Mix CV input", "Reset input", "Low-pass output", "Low-pass mode",
+        "Band-pass output", "Band-pass mode", "High-pass output",
+        "High-pass mode", "Stepped CV output", "Stepped CV mode",
+        "PWM output", "PWM mode", "XOR output", "XOR mode",
+        "Aux A output", "Aux A mode", "Aux B output", "Aux B mode"
+    };
+    assert(factory->guid == NT_MULTICHAR('T', 'h', 'B', 'u'));
+    assert(count == sizeof(kV1ParameterNames) / sizeof(kV1ParameterNames[0]));
+    for (uint32_t index = 0; index < count; ++index) {
+        assert(std::strcmp(algorithm->parameters[index].name,
+                           kV1ParameterNames[index]) == 0);
+    }
+
+    // Ordinary values and mappings belong to the host preset format. Burl
+    // intentionally adds no competing custom serialization or running-state
+    // payload in v1.
+    assert(factory->serialise == nullptr);
+    assert(factory->deserialise == nullptr);
+}
+
+_NT_algorithm* constructTestAlgorithm(
+    const _NT_factory* factory, const _NT_algorithmRequirements& requirements,
+    void*& sram, void*& dtc) {
+    sram = std::calloc(1, requirements.sram);
+    dtc = std::calloc(1, requirements.dtc);
+    assert(sram != nullptr);
+    assert(dtc != nullptr);
+    const _NT_algorithmMemoryPtrs pointers = {
+        static_cast<uint8_t*>(sram), nullptr, static_cast<uint8_t*>(dtc), nullptr
+    };
+    _NT_algorithm* algorithm = factory->construct(
+        pointers, requirements, nullptr);
+    assert(algorithm != nullptr);
+    return algorithm;
+}
+
+void applyParameterSnapshot(const _NT_factory* factory,
+                            _NT_algorithm* algorithm,
+                            std::vector<int16_t>& values, bool reverse) {
+    algorithm->v = values.data();
+    algorithm->vIncludingCommon = values.data();
+    if (reverse) {
+        for (size_t offset = 0; offset < values.size(); ++offset) {
+            const int parameter = static_cast<int>(values.size() - 1u - offset);
+            factory->parameterChanged(algorithm, parameter);
+        }
+    } else {
+        for (size_t parameter = 0; parameter < values.size(); ++parameter)
+            factory->parameterChanged(algorithm, static_cast<int>(parameter));
+    }
+}
+
+std::vector<float> renderPresetFixture(const _NT_factory* factory,
+                                       _NT_algorithm* algorithm) {
+    const int numFrames = 128;
+    std::vector<float> buses(kNT_lastBus * numFrames, 0.0f);
+    for (int frame = 0; frame < numFrames; ++frame) {
+        buses[0 * numFrames + frame] =
+            0.25f * static_cast<float>((frame % 17) - 8);
+        buses[1 * numFrames + frame] =
+            0.2f * static_cast<float>((frame % 19) - 9);
+        buses[2 * numFrames + frame] =
+            0.1f * static_cast<float>((frame % 23) - 11);
+        buses[3 * numFrames + frame] =
+            0.15f * static_cast<float>((frame % 29) - 14);
+        buses[4 * numFrames + frame] = (frame % 16) < 8 ? 0.0f : 5.0f;
+        buses[5 * numFrames + frame] =
+            0.125f * static_cast<float>((frame % 13) - 6);
+        buses[6 * numFrames + frame] =
+            0.1f * static_cast<float>((frame % 11) - 5);
+        buses[7 * numFrames + frame] =
+            0.1f * static_cast<float>((frame % 7) - 3);
+        buses[8 * numFrames + frame] = 0.0f;
+    }
+    factory->step(algorithm, buses.data(), numFrames / 4);
+    return buses;
+}
+
 void testPluginIntegration() {
     assert(pluginEntry(kNT_selector_version, 0) == kNT_apiVersion13);
     assert(pluginEntry(kNT_selector_numFactories, 0) == 1);
@@ -92,6 +182,7 @@ void testPluginIntegration() {
     assert(algorithm->parameters != nullptr);
     assert(algorithm->parameterPages != nullptr);
     assert(algorithm->parameterPages->numPages == 11u);
+    assertFrozenPresetAbi(factory, algorithm, requirements.numParameters);
 
     std::vector<int16_t> values(requirements.numParameters);
     for (uint32_t index = 0; index < requirements.numParameters; ++index)
@@ -240,10 +331,90 @@ void testPluginIntegration() {
     std::free(sram);
 }
 
+void testPresetCompatibility() {
+    const _NT_factory* factory = reinterpret_cast<const _NT_factory*>(
+        pluginEntry(kNT_selector_factoryInfo, 0));
+    assert(factory != nullptr);
+
+    _NT_algorithmRequirements requirements = {};
+    factory->calculateRequirements(requirements, nullptr);
+    static const int16_t kPresetValues[] = {
+        8123, 4210, -237, 6920, 777, 340,
+        -612, 731, -456, 567,
+        321, 1, 1, 1, 113, 0,
+        -528, 643, -375, 284, 275, 0,
+        2, 8, 9,
+        1, 2, 3, 4, 5, 6, 7, 8, 9,
+        41, 1, 42, 1, 43, 1, 44, 1,
+        45, 1, 46, 1, 47, 1, 48, 1
+    };
+    assert(requirements.numParameters
+           == sizeof(kPresetValues) / sizeof(kPresetValues[0]));
+
+    std::vector<int16_t> savedValues(
+        kPresetValues,
+        kPresetValues + sizeof(kPresetValues) / sizeof(kPresetValues[0]));
+
+    void* reloadedSram = nullptr;
+    void* reloadedDtc = nullptr;
+    _NT_algorithm* reloaded = constructTestAlgorithm(
+        factory, requirements, reloadedSram, reloadedDtc);
+    assertFrozenPresetAbi(factory, reloaded, requirements.numParameters);
+    for (uint32_t index = 0; index < requirements.numParameters; ++index) {
+        assert(savedValues[index] >= reloaded->parameters[index].min);
+        assert(savedValues[index] <= reloaded->parameters[index].max);
+    }
+
+    std::vector<int16_t> activeValues(savedValues);
+    applyParameterSnapshot(factory, reloaded, activeValues, false);
+    const std::vector<float> initialSeededRender =
+        renderPresetFixture(factory, reloaded);
+
+    // Move every determinism-relevant DSP subsystem away from the seeded
+    // state, then replace the host-owned parameter array with defaults.
+    renderPresetFixture(factory, reloaded);
+    for (uint32_t index = 0; index < requirements.numParameters; ++index)
+        activeValues[index] = reloaded->parameters[index].def;
+    applyParameterSnapshot(factory, reloaded, activeValues, false);
+    renderPresetFixture(factory, reloaded);
+
+    // A host preset load makes the complete positional value array visible
+    // before callbacks. Reverse callback order stresses that Seed restoration
+    // does not depend on callbacks arriving in declaration order.
+    activeValues = savedValues;
+    applyParameterSnapshot(factory, reloaded, activeValues, true);
+    assert(activeValues == savedValues);
+    const std::vector<float> reloadedSeededRender =
+        renderPresetFixture(factory, reloaded);
+    assert(initialSeededRender.size() == reloadedSeededRender.size());
+    assert(std::memcmp(initialSeededRender.data(), reloadedSeededRender.data(),
+                       initialSeededRender.size() * sizeof(float)) == 0);
+
+    // A newly constructed instance located through the same frozen GUID and
+    // positional ABI must produce the same seeded render.
+    void* freshSram = nullptr;
+    void* freshDtc = nullptr;
+    _NT_algorithm* fresh = constructTestAlgorithm(
+        factory, requirements, freshSram, freshDtc);
+    assertFrozenPresetAbi(factory, fresh, requirements.numParameters);
+    std::vector<int16_t> freshValues(savedValues);
+    applyParameterSnapshot(factory, fresh, freshValues, false);
+    const std::vector<float> freshSeededRender =
+        renderPresetFixture(factory, fresh);
+    assert(std::memcmp(initialSeededRender.data(), freshSeededRender.data(),
+                       initialSeededRender.size() * sizeof(float)) == 0);
+
+    std::free(freshDtc);
+    std::free(freshSram);
+    std::free(reloadedDtc);
+    std::free(reloadedSram);
+}
+
 } // namespace
 
 int main() {
     testPluginIntegration();
+    testPresetCompatibility();
     std::puts("All Burl plug-in integration tests passed");
     return EXIT_SUCCESS;
 }

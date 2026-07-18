@@ -74,5 +74,6 @@ assuming defaults.
 These results establish that the API-v13 object scans, loads, produces live
 outputs, and meets the single-High CPU ceiling. Subjective listening details,
 dropout observation for the documented two-Eco patch, display interaction,
-external-clock/reset behavior, and preset round-trip remain separate owner
-acceptance checks.
+external-clock/reset behavior, and the live-host preset/mapping round-trip
+remain separate owner acceptance checks. The retained positional-ABI and
+Seeded-restoration host harness is documented in [PRESETS.md](PRESETS.md).
