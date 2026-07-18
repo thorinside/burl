@@ -7,10 +7,12 @@ a triangle comparator, and a resonant multimode filter.
 
 ## Project status
 
-Burl is in active development. The repository currently contains the first
-host-tested DSP slice: the deterministic feedback shift-register pattern
-generator. **It is not yet a loadable disting NT plug-in and is not ready for
-hardware use or public binary distribution.**
+Burl is in active development. The repository currently contains a host-tested
+integrated DSP voice with two reflected triangle oscillators, the deterministic
+feedback shift-register pattern generator, a triangle comparator, a two-pole
+state-variable filter, internal/external source replacement, and Eco/Normal/High
+internal-rate processing. **It is not yet a loadable disting NT plug-in and is
+not ready for hardware use or public binary distribution.**
 
 The release target is disting NT C++ API v13 on firmware 1.17.0. The eventual
 hardware product will be a C++11 Cortex-M7 hard-float position-independent
@@ -34,11 +36,13 @@ The test suite currently verifies:
 - deterministic reset and prevention of zero lock in 127 mode;
 - repeatability of intermediate Change decisions; and
 - bit-exact repeated pattern renders across the supported sample-rate and
-  quality-mode contexts.
+  quality-mode contexts; and
+- bit-exact repeated integrated-voice renders of all eight outputs at 32,
+  44.1, 48, 88.2, and 96 kHz in Eco, Normal, and High modes.
 
-The retained render matrix and its current product-level limitation are
-recorded in [the determinism verification](docs/DETERMINISM.md). No hardware
-artifact is produced yet.
+The retained render matrices and zero-tolerance comparison are recorded in
+[the determinism verification](docs/DETERMINISM.md). No hardware artifact is
+produced yet.
 
 ## Independence, attribution, and release gate
 

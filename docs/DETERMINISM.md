@@ -1,44 +1,58 @@
 # Determinism verification
 
-## Current retained evidence
+## Integrated voice evidence
 
-The host test `tests/determinism_test.cpp` renders the implemented feedback
-shift-register pattern-generator slice twice from independently constructed
-instances. Every pair has identical:
+The host test `tests/voice_determinism_test.cpp` renders the complete current
+Burl DSP voice twice from independently constructed instances. Every pair has
+identical:
 
 - configured seed;
-- measured-interval initial state, established by the same 47-clock pre-roll;
-- mode, Change values, and tap selections;
-- chaos-signal input stream;
-- sample-rate context; and
-- quality-mode context.
+- measured-interval initial state, established by the same 257-frame pre-roll;
+- oscillator, pattern-generator, filter, routing-normal, tap, and quality
+  parameter values, including the same parameter change halfway through;
+- oscillator CV, external clock, filter audio, and cutoff CV input streams;
+- runtime sample rate; and
+- quality mode.
 
 The matrix covers 32, 44.1, 48, 88.2, and 96 kHz; Eco, Normal, and High; and
-both pattern-generator modes. Each case compares 1,024 output frames containing
-the complete register state, a selected register bit, and the three-tap DAC
-output.
+both internal-normal/internal-clock and external-replacement/external-clock
+scenarios. Each case compares 2,048 frames containing all eight product
+outputs, both oscillator status values, the complete register state, and the
+activity flag. A non-constant-output check prevents a vacuous silent or fixed
+render from passing.
 
-The retained tolerance for this discrete DSP slice is **zero**: integer and
-boolean outputs must match exactly, and floating-point DAC outputs must have
-identical 32-bit representations. The test rejects an empty render so a
-vacuous comparison cannot pass.
+The retained tolerance is **zero**. Every floating-point output and status
+value must have an identical 32-bit representation, and integer and boolean
+state must match exactly. This is stricter than the acceptance criterion's
+allowance for a documented floating-point tolerance.
 
-The pattern generator itself is intentionally independent of sample rate and
-quality. Those values identify the render context and vary the deterministic
-test trajectories; actual sample-rate conversion and quality-rate processing
-belong to the later integrated voice.
+The voice consumes the sample rate at runtime. Eco, Normal, and High execute at
+1x, 2x, and 4x common internal rates respectively, with scalar storage
+preallocated in the voice and boxcar low-pass decimation to host rate. The test
+therefore exercises actual rate and quality behavior rather than treating
+those values only as metadata.
 
-Run the retained check with:
+## Pattern-generator component evidence
+
+The narrower host test `tests/determinism_test.cpp` independently renders the
+feedback shift-register pattern generator across the same five sample-rate and
+three quality contexts, both register modes, a 47-clock pre-roll, and 1,024
+output frames. It compares complete register state, a selected bit, and DAC
+float bits exactly. The pattern generator is intentionally rate-independent;
+this component test remains as a focused regression check beneath the
+integrated voice test.
+
+## Acceptance conclusion
+
+Together these retained tests complete AC-004 for the host DSP implementation:
+identical seed, initial state, parameters, inputs, sample rate, and quality
+produce bit-exact repeated renders. The future native adapter must keep using
+this core and must not bypass this regression gate; native loading, routing,
+preset, and hardware behavior are covered by their separate acceptance
+criteria.
+
+Run all retained checks with:
 
 ```sh
 make test
 ```
-
-## Acceptance scope
-
-This evidence proves deterministic repeated rendering for all DSP currently
-implemented. AC-004 remains partial at the product level until the integrated
-oscillators, filter, routing/mixing, and runtime quality processing use this
-same independent-render comparison. At that point the complete output set must
-retain either exact equality or an explicitly documented floating-point
-tolerance.
