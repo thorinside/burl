@@ -41,8 +41,9 @@ The test suite currently verifies:
   44.1, 48, 88.2, and 96 kHz in Eco, Normal, and High modes.
 
 The retained render matrices and zero-tolerance comparison are recorded in
-[the determinism verification](docs/DETERMINISM.md). No hardware artifact is
-produced yet.
+[the determinism verification](docs/DETERMINISM.md). The exhaustive eight-code
+mapping is recorded in the [stepped-CV verification](docs/STEPPED_CV.md). No
+hardware artifact is produced yet.
 
 ## Independence, attribution, and release gate
 
