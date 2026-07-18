@@ -66,14 +66,14 @@ Reversible performance checks were made without saving the Init preset:
   owner.
 
 The temporary second instance was removed and slot 1 was restored to Normal.
-The final inspected state was one Burl instance at 36% slot CPU. The module's
-default sample rate is 48 kHz; future performance records must explicitly
-confirm the active system sample-rate and buffer-size settings rather than
-assuming defaults.
+The final inspected state was one Burl instance at 36% slot CPU. A preset
+export from the same live session recorded the active engine at 48 kHz with a
+32-sample block.
 
 These results establish that the API-v13 object scans, loads, produces live
-outputs, and meets the single-High CPU ceiling. Subjective listening details,
-dropout observation for the documented two-Eco patch, display interaction,
-external-clock/reset behavior, and the live-host preset/mapping round-trip
-remain separate owner acceptance checks. The retained positional-ABI and
-Seeded-restoration host harness is documented in [PRESETS.md](PRESETS.md).
+outputs, meets the single-High CPU ceiling, and restores host-managed values,
+routing, and a performance mapping across repeated preset loads. Subjective
+listening details, dropout observation for the documented two-Eco patch,
+display interaction, and external-clock/reset behavior remain separate owner
+acceptance checks. The retained positional-ABI, Seeded-restoration harness,
+and live preset round-trip are documented in [PRESETS.md](PRESETS.md).

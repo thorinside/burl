@@ -58,20 +58,24 @@ Run the retained check with:
 make test
 ```
 
-## Remaining live-host evidence
+## Completed live-host evidence
 
-The public API does not expose host mapping records to the plug-in test
-harness. Completion of AC-023 therefore still requires one target-hardware
-round-trip on firmware 1.17.0:
+The target-hardware round-trip was completed on 2026-07-18 with firmware
+1.17.0. The temporary `/presets/Burl AC023 Validatio.json` fixture was saved
+with factory GUID `ThBu`, `Seed` 113, `Change` 321, High quality, Osc 1 CV
+input routed to Input 1, and Change assigned to performance index 1. Exporting
+the saved file through nt_helper confirmed those values in the 50-position
+parameter array, the `perfPage` record for slot 0 parameter 3, and the active
+engine settings of 48 kHz with a 32-sample block.
 
-1. load Burl and set several non-default values, including `Seed` and a routed
-   input or output;
-2. create at least one parameter mapping using the standard host UI;
-3. save a temporary preset;
-4. advance the voice and change the saved values and mapping;
-5. reload the temporary preset and confirm the values and mapping returned;
-6. reload it twice from changed running states and confirm both loads begin
-   with the same pattern/status and output behavior from the saved Seed; and
-7. remove the temporary preset if it is no longer wanted.
+The separate Init preset provided a changed running state: `Seed` 93,
+`Change` 0, Normal quality, Osc 1 CV input None, and no performance mapping.
+Two Init-to-validation loads were performed. Both restored `Seed` 113,
+`Change` 321, High quality, Input 1 routing, and Change on performance index 1.
+The retained bit-exact integration test supplies the corresponding seeded
+render comparison, while the product owner's live listening confirmed that
+the loaded plug-in produced active, varied outputs on the module.
 
-No new plug-in build or custom serialization is required for that check.
+After validation the module was restored to Init with one Normal Burl instance
+and no performance mapping. The validation preset remains on the SD card as a
+small repeatable regression fixture.
