@@ -64,3 +64,47 @@ independently written from the approved behavioural Spec, with no evidence of
 copied or mechanically translated third-party emulation source. This completes
 AC-002 for that baseline. Future implementation commits must preserve this
 separation and extend this record before AC-002 is reassessed for a release.
+
+## Integrated-voice extension review
+
+Review date: 2026-07-18
+
+Implementation baseline reviewed:
+`ecf3e1830a8334ddf5207fe90c57f30ca9f031be`
+
+This delta review extends the earlier review rather than repeating it. It covers
+all implementation and test changes after `8e5c87d998fceb7dafb0ee278c61f14a015b2cc9`
+through the new baseline, including:
+
+- `include/burl/voice.hpp`
+- `src/voice.cpp`
+- `tests/determinism_test.cpp`
+- `tests/voice_determinism_test.cpp`
+- associated build and determinism documentation changes
+
+Review evidence and findings:
+
+1. The integrated voice and determinism tests were authored directly from the
+   approved Spec and the pre-existing project-owned pattern-generator API. No
+   third-party emulation source was accessed, copied, or mechanically
+   translated for this extension.
+2. Production includes remain limited to project headers and the C++ standard
+   library. Test includes are likewise limited to project headers and standard
+   library facilities; no vendored, generated, or externally sourced code was
+   introduced.
+3. Repository boundary checks found no remote, submodule, tracked symbolic
+   link, or external source notice. Every new C++ source and header carries the
+   project MIT SPDX and copyright notice.
+4. The delta expresses approved behavioural relationships directly: reflected
+   triangle oscillators, internal-normal replacement, deterministic register
+   clocking, triangle comparison, state-variable filtering, common quality
+   rates, low-pass decimation, and bounded scalar state.
+5. Commit history retains the complete authorship delta, and the zero-tolerance
+   independent-render tests retain executable evidence of the implementation's
+   deterministic behavior.
+
+**Review conclusion:** the independently developed finding now covers the
+complete implementation through the recorded integrated-voice baseline. No
+evidence of copied or mechanically translated third-party emulation source was
+found. This extends AC-002 evidence to that baseline; later implementation
+changes must receive another delta review before release reassessment.
