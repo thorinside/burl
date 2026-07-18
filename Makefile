@@ -37,8 +37,10 @@ VOICE_STRESS_TEST_SOURCES := src/pattern_generator.cpp src/voice.cpp tests/voice
 VOICE_STRESS_SANITIZER_BINARY := $(BUILD_DIR)/voice_stress_test_sanitize
 PLUGIN_TEST_BINARY := $(BUILD_DIR)/plugin_integration_test
 PLUGIN_TEST_SOURCES := tests/plugin_integration_test.cpp $(PLUGIN_SOURCES)
+RELEASE_BRANDING_TEST_BINARY := $(BUILD_DIR)/release_branding_test
+RELEASE_BRANDING_TEST_SOURCES := tests/release_branding_test.cpp
 
-.PHONY: all test stress-sanitize hardware check check-allocations size verify push clean
+.PHONY: all test stress-sanitize hardware check check-allocations size branding-check verify push clean
 
 all: test hardware
 
@@ -82,6 +84,9 @@ $(VOICE_STRESS_SANITIZER_BINARY): $(VOICE_STRESS_TEST_SOURCES) include/burl/patt
 $(PLUGIN_TEST_BINARY): $(PLUGIN_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/voice.hpp $(API_DIR)/include/distingnt/api.h | $(BUILD_DIR)
 	$(CXX) $(PLUGIN_CPPFLAGS) $(CXXFLAGS) $(SANITIZER_FLAGS) $(PLUGIN_TEST_SOURCES) -o $@
 
+$(RELEASE_BRANDING_TEST_BINARY): $(RELEASE_BRANDING_TEST_SOURCES) | $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(RELEASE_BRANDING_TEST_SOURCES) -o $@
+
 $(HARDWARE_BUILD_DIR)/%.o: %.cpp include/burl/pattern_generator.hpp include/burl/voice.hpp $(API_DIR)/include/distingnt/api.h
 	@mkdir -p $(@D)
 	$(ARM_CXX) $(PLUGIN_CPPFLAGS) $(HARDWARE_FLAGS) -MMD -MP -c -o $@ $<
@@ -108,7 +113,10 @@ check-allocations: hardware
 size: hardware
 	$(ARM_SIZE) -A $(PLUGIN_OUTPUT)
 
-verify: test stress-sanitize hardware check check-allocations size
+branding-check: $(RELEASE_BRANDING_TEST_BINARY) hardware
+	./$(RELEASE_BRANDING_TEST_BINARY)
+
+verify: test stress-sanitize hardware check check-allocations size branding-check
 
 push: hardware
 	$(NTPUSH) $(PLUGIN_OUTPUT)

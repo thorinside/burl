@@ -59,12 +59,42 @@ No public source or binary release may occur until every item below is true:
 - [x] Required attribution and non-endorsement wording are recorded.
 - [x] Scope of the MIT License and relevant third-party rights are recorded.
 - [ ] Every distributed dependency and file has a compatible, recorded license.
-- [ ] The release source and binary use Burl as the primary brand without ™ or
-      ® and contain the required attribution.
+- [x] The release source, plug-in UI, and binary use Burl as the primary brand
+      without trademark symbols; the release README carries the required
+      attribution for distribution with them.
 - [ ] The release build record identifies the compiler/toolchain version, API
       version, required flags, and source commit.
 - [ ] Host and hardware verification required by the approved Spec is complete
       and retained.
+
+## AC-025 branding verification
+
+The release-branding audit was completed on 2026-07-18 against approved Spec
+SHA-256 `19ddd4d1fc8268c0af9b1cba53d7ff77c2745d1c47fb375f2c3df9029476fb1b`.
+The audit establishes that:
+
+- the repository title, factory name, on-device title, implementation naming,
+  and installable `plugins/Burl.o` identify the product as Burl;
+- neither trademark symbol appears on the release-facing product surfaces or
+  in the installable object;
+- Benji, Benjolin, and Rungler do not appear in the implementation, plug-in UI,
+  factory metadata, or installable object; product-facing uses are limited to
+  subordinate historical attribution, while provenance and audit fixtures
+  retain the terms only as evidence;
+- the README and this release record contain the exact approved subordinate
+  historical attribution and explicit non-endorsement wording; and
+- this record retains the owner's acceptance of the U.S. BURL wordmark as a
+  known, low release risk, makes no claim of trademark rights, and records the
+  willingness to rename after a credible conflict or objection.
+
+`make branding-check` verifies these source, documentation, metadata, and Arm
+object properties. It is also part of `make verify`, so a missing attribution,
+legacy primary product name, trademark symbol, renamed binary, or branding
+regression fails release verification.
+
+This evidence completes AC-025's branding requirement. It does not authorize a
+public release: the unchecked dependency, build-record, and remaining host and
+hardware gates above are still mandatory.
 
 The checked discovery decisions satisfy the decision portion of the gate. The
 unchecked delivery evidence remains mandatory; this repository is not yet

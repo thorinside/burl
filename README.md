@@ -59,7 +59,10 @@ The test suite currently verifies:
   declared SRAM and DTC footprints; and
 - safety-limited stress operation at all five supported sample rates and all
   three quality modes, including AddressSanitizer and UndefinedBehaviorSanitizer
-  verification.
+  verification; and
+- release branding across the README, implementation, on-device UI, factory,
+  and installable object, plus the exact approved attribution and naming-risk
+  record.
 
 The retained render matrices and zero-tolerance comparison are recorded in
 [the determinism verification](docs/DETERMINISM.md). The exhaustive eight-code
