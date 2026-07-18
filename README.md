@@ -34,16 +34,20 @@ The test suite currently verifies:
 - a 127-state non-zero maximal-length recurrence;
 - eight exact monotonic stepped-CV levels spanning -5 V to +5 V;
 - deterministic reset and prevention of zero lock in 127 mode;
-- repeatability of intermediate Change decisions; and
+- repeatability of intermediate Change decisions;
 - bit-exact repeated pattern renders across the supported sample-rate and
-  quality-mode contexts; and
+  quality-mode contexts;
 - bit-exact repeated integrated-voice renders of all eight outputs at 32,
-  44.1, 48, 88.2, and 96 kHz in Eco, Normal, and High modes.
+  44.1, 48, 88.2, and 96 kHz in Eco, Normal, and High modes; and
+- exact bipolar PWM triangle-comparator behavior, including equality and a
+  triangle crossing with unchanged oscillator pulse directions.
 
 The retained render matrices and zero-tolerance comparison are recorded in
 [the determinism verification](docs/DETERMINISM.md). The exhaustive eight-code
-mapping is recorded in the [stepped-CV verification](docs/STEPPED_CV.md). No
-hardware artifact is produced yet.
+mapping is recorded in the [stepped-CV verification](docs/STEPPED_CV.md), and
+the comparator crossing is recorded in the
+[PWM verification](docs/PWM_COMPARATOR.md). No hardware artifact is produced
+yet.
 
 ## Independence, attribution, and release gate
 
