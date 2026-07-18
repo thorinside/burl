@@ -38,16 +38,19 @@ The test suite currently verifies:
 - bit-exact repeated pattern renders across the supported sample-rate and
   quality-mode contexts;
 - bit-exact repeated integrated-voice renders of all eight outputs at 32,
-  44.1, 48, 88.2, and 96 kHz in Eco, Normal, and High modes; and
+  44.1, 48, 88.2, and 96 kHz in Eco, Normal, and High modes;
 - exact bipolar PWM triangle-comparator behavior, including equality and a
-  triangle crossing with unchanged oscillator pulse directions.
+  triangle crossing with unchanged oscillator pulse directions; and
+- replacement (not addition) of both oscillator triangle normals and the
+  oscillator-2 clock normal when their external routes are selected.
 
 The retained render matrices and zero-tolerance comparison are recorded in
 [the determinism verification](docs/DETERMINISM.md). The exhaustive eight-code
-mapping is recorded in the [stepped-CV verification](docs/STEPPED_CV.md), and
-the comparator crossing is recorded in the
-[PWM verification](docs/PWM_COMPARATOR.md). No hardware artifact is produced
-yet.
+mapping is recorded in the [stepped-CV verification](docs/STEPPED_CV.md), the
+comparator crossing in the [PWM verification](docs/PWM_COMPARATOR.md), and
+internal-normal replacement in the
+[source-routing verification](docs/SOURCE_ROUTING.md). No hardware artifact is
+produced yet.
 
 ## Independence, attribution, and release gate
 

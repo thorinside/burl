@@ -11,16 +11,19 @@ VOICE_DETERMINISM_TEST_BINARY := $(BUILD_DIR)/voice_determinism_test
 VOICE_DETERMINISM_TEST_SOURCES := src/pattern_generator.cpp src/voice.cpp tests/voice_determinism_test.cpp
 VOICE_PWM_TEST_BINARY := $(BUILD_DIR)/voice_pwm_test
 VOICE_PWM_TEST_SOURCES := src/pattern_generator.cpp src/voice.cpp tests/voice_pwm_test.cpp
+VOICE_SOURCE_ROUTING_TEST_BINARY := $(BUILD_DIR)/voice_source_routing_test
+VOICE_SOURCE_ROUTING_TEST_SOURCES := src/pattern_generator.cpp src/voice.cpp tests/voice_source_routing_test.cpp
 
 .PHONY: all test clean
 
 all: test
 
-test: $(PATTERN_TEST_BINARY) $(DETERMINISM_TEST_BINARY) $(VOICE_DETERMINISM_TEST_BINARY) $(VOICE_PWM_TEST_BINARY)
+test: $(PATTERN_TEST_BINARY) $(DETERMINISM_TEST_BINARY) $(VOICE_DETERMINISM_TEST_BINARY) $(VOICE_PWM_TEST_BINARY) $(VOICE_SOURCE_ROUTING_TEST_BINARY)
 	./$(PATTERN_TEST_BINARY)
 	./$(DETERMINISM_TEST_BINARY)
 	./$(VOICE_DETERMINISM_TEST_BINARY)
 	./$(VOICE_PWM_TEST_BINARY)
+	./$(VOICE_SOURCE_ROUTING_TEST_BINARY)
 
 $(PATTERN_TEST_BINARY): $(PATTERN_TEST_SOURCES) include/burl/pattern_generator.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PATTERN_TEST_SOURCES) -o $@
@@ -33,6 +36,9 @@ $(VOICE_DETERMINISM_TEST_BINARY): $(VOICE_DETERMINISM_TEST_SOURCES) include/burl
 
 $(VOICE_PWM_TEST_BINARY): $(VOICE_PWM_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/voice.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(VOICE_PWM_TEST_SOURCES) -o $@
+
+$(VOICE_SOURCE_ROUTING_TEST_BINARY): $(VOICE_SOURCE_ROUTING_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/voice.hpp | $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(VOICE_SOURCE_ROUTING_TEST_SOURCES) -o $@
 
 $(BUILD_DIR):
 	mkdir -p $@
