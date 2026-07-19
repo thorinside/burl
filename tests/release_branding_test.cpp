@@ -137,8 +137,10 @@ int main() {
     expectContains(pluginObject, "Burl", "installable object metadata");
 
     const char* implementationFiles[] = {
+        "include/burl/filter.hpp",
         "include/burl/pattern_generator.hpp",
         "include/burl/voice.hpp",
+        "src/filter.cpp",
         "src/pattern_generator.cpp",
         "src/plugin.cpp",
         "src/voice.cpp"
@@ -163,8 +165,10 @@ int main() {
         "README.md",
         "LICENSE",
         "Makefile",
+        "include/burl/filter.hpp",
         "include/burl/pattern_generator.hpp",
         "include/burl/voice.hpp",
+        "src/filter.cpp",
         "src/pattern_generator.cpp",
         "src/plugin.cpp",
         "src/voice.cpp",

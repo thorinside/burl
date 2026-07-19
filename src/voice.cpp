@@ -6,11 +6,6 @@
 #include <cmath>
 
 namespace burl {
-namespace {
-
-const float kPi = 3.14159265358979323846f;
-
-} // namespace
 
 VoiceParameters::VoiceParameters()
     : oscillator1Hz(110.0f),
@@ -115,8 +110,7 @@ void Voice::reset() {
     oscillator1_.direction = 1.0f;
     oscillator2_.triangle = 0.25f;
     oscillator2_.direction = -1.0f;
-    filter_.integrator1 = 0.0f;
-    filter_.integrator2 = 0.0f;
+    filter_.reset();
     steppedCv_ = pattern_.dac(parameters_.dacMsbTap,
                               parameters_.dacMiddleTap,
                               parameters_.dacLsbTap);
@@ -323,7 +317,8 @@ VoiceOutputs Voice::processInternal(const VoiceInputs& inputs,
                                                internalSampleRate);
     const float internalPulse = oscillator2_.direction > 0.0f ? 5.0f : -5.0f;
 
-    const float internalAudio = 2.5f * (triangle1 + triangle2);
+    const float pwm = triangle2 > triangle1 ? 5.0f : -5.0f;
+    const float internalAudio = pwm + 0.10f * previousSteppedCv;
     const float inputMix = clamp(
         parameters_.externalInputMix
             + parameters_.mixCvAmount
@@ -338,36 +333,24 @@ VoiceOutputs Voice::processInternal(const VoiceInputs& inputs,
             + parameters_.externalCutoffModulation
                 * (finiteClamp(inputs.cutoffCv, 10.0f) / 5.0f),
         -16.0f, 16.0f);
-    const float cutoff = clamp(
-        clamp(parameters_.filterCutoffHz, 1.0f, internalSampleRate * 0.45f)
-            * std::pow(2.0f, cutoffOctaves),
-        1.0f, internalSampleRate * 0.45f);
-    const float g = std::tan(kPi * cutoff / internalSampleRate);
+    const float baseCutoff = clamp(
+        parameters_.filterCutoffHz, 1.0f, internalSampleRate * 0.45f);
     const float resonance = clamp(
         parameters_.filterResonance
             + parameters_.resonanceCvAmount
                 * (finiteClamp(inputs.resonanceCv, 10.0f) / 5.0f),
         0.0f, 1.0f);
-    const float damping = 2.0f - 1.95f * resonance;
-    const float a1 = 1.0f / (1.0f + g * (g + damping));
-    const float a2 = g * a1;
-    const float a3 = g * a2;
-    const float v3 = drivenFilterInput - filter_.integrator2;
-    const float bandPass = a1 * filter_.integrator1 + a2 * v3;
-    const float lowPass = filter_.integrator2
-        + a2 * filter_.integrator1 + a3 * v3;
-    const float highPass = drivenFilterInput - damping * bandPass - lowPass;
-    filter_.integrator1 = finiteClamp(
-        2.0f * bandPass - filter_.integrator1, 100.0f);
-    filter_.integrator2 = finiteClamp(
-        2.0f * lowPass - filter_.integrator2, 100.0f);
+    const StateVariableFilter::Frame filterFrame = filter_.process(
+        drivenFilterInput, baseCutoff, cutoffOctaves, resonance,
+        internalSampleRate,
+        parameters_.safetyLimit);
 
     VoiceOutputs output;
-    output.lowPass = lowPass;
-    output.bandPass = bandPass;
-    output.highPass = highPass;
+    output.lowPass = filterFrame.lowPass;
+    output.bandPass = filterFrame.bandPass;
+    output.highPass = filterFrame.highPass;
     output.steppedCv = previousSteppedCv;
-    output.pwm = triangle2 > triangle1 ? 5.0f : -5.0f;
+    output.pwm = pwm;
     output.registerXor = pattern_.bit(0u) != pattern_.bit(7u) ? 5.0f : -5.0f;
     const float oscillator1Pulse = oscillator1_.direction > 0.0f ? 5.0f : -5.0f;
     const float oscillator2Pulse = oscillator2_.direction > 0.0f ? 5.0f : -5.0f;

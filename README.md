@@ -21,6 +21,16 @@ acceptance checks on the target module. The project is prepared for a free,
 open-source MIT release. Version-tagged builds and release downloads are hosted
 on [GitHub Releases](https://github.com/thorinside/burl/releases).
 
+The `codex/filter-character` branch is an unreleased filter-character
+candidate. It corrects the internal PWM/stepped-CV source, resonance ping
+response, and progressive `Input drive` behavior while retaining the frozen
+`ThBu` identity and all 50 positional parameters. LP, BP, and HP remain
+DC-coupled; LP can carry slow or steady offsets by design. This candidate must
+pass owner listening and processor-load acceptance on the physical module
+before a follow-up release is cut. See the
+[filter verification record](docs/FILTER_CHARACTER.md) and
+[unreleased notes](CHANGELOG.md).
+
 ## Release metadata
 
 - **Version:** 1.0.0
@@ -78,6 +88,13 @@ The test suite currently verifies:
   44.1, 48, 88.2, and 96 kHz in Eco, Normal, and High modes;
 - exact bipolar PWM triangle-comparator behavior, including equality and a
   triangle crossing with unchanged oscillator pulse directions;
+- the curved Q 0.5..20 resonance mapping, 250 Hz ping tails, silence stability,
+  DC-coupled LP/BP/HP behavior, high-resonance harmonic character, and bounded
+  oversampled output limiting;
+- the exact internal `PWM + 0.10 * previous stepped CV` filter source against
+  an external reference render;
+- the actual NT `Input drive` parameter mapping from 0.25x through 4x,
+  transparent low-level gain, and progressive pre-filter saturation;
 - replacement (not addition) of both oscillator triangle normals and the
   oscillator-2 clock normal when their external routes are selected; and
 - API v13 factory metadata, parameter/page layout, all nine `None`-safe input
@@ -104,7 +121,9 @@ Seeded load behavior in the [preset verification](docs/PRESETS.md), and runtime
 quality transitions in the
 [quality-switching verification](docs/QUALITY_SWITCHING.md). The full numerical
 and sanitizer matrix is recorded in the
-[stress verification](docs/STRESS_TEST.md). Native build and
+[stress verification](docs/STRESS_TEST.md), and the resonance, drive, and DC
+contract is recorded in the
+[filter-character verification](docs/FILTER_CHARACTER.md). Native build and
 live-device results are recorded in
 [the hardware verification](docs/NATIVE_BUILD_AND_HARDWARE.md).
 

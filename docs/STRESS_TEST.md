@@ -16,7 +16,8 @@ reconstructing the voice. The phases cover:
 - both feedback shift-register modes, Change endpoints and intermediate values,
   internal and external clocks, and single- and double-edge clocking;
 - filter cutoff extremes, minimum and maximum resonance, positive and negative
-  cutoff modulation, and the full internal/external input-mix range;
+  cutoff modulation, the full 0.25x..4x drive range, and the full
+  internal/external input-mix range;
 - internal oscillator normals and external oscillator-CV replacement routes;
   and
 - all eight selectable register tap positions.
@@ -37,7 +38,8 @@ active.
 The implementation supports these checks by conditioning routed external
 values with `finiteClamp()`, clamping oscillator and filter operating ranges,
 bounding the filter integrator states, replacing non-finite final values, and
-applying the selected output safety ceiling after quality-rate decimation.
+applying transparent pre-filter protection and the selected soft output
+limiter at the common internal quality rate before final finite bounds.
 
 `make stress-sanitize` compiles and runs the same complete stress matrix with
 AddressSanitizer and UndefinedBehaviorSanitizer. This retained instrumentation

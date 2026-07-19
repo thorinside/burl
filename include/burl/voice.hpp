@@ -4,6 +4,7 @@
 #ifndef BURL_VOICE_HPP
 #define BURL_VOICE_HPP
 
+#include "burl/filter.hpp"
 #include "burl/pattern_generator.hpp"
 
 #include <stdint.h>
@@ -134,11 +135,6 @@ private:
         float direction;
     };
 
-    struct FilterState {
-        float integrator1;
-        float integrator2;
-    };
-
     static float clamp(float value, float low, float high);
     static float finiteClamp(float value, float limit);
     static unsigned int qualityFactor(QualityMode quality);
@@ -159,7 +155,7 @@ private:
     PatternGenerator pattern_;
     OscillatorState oscillator1_;
     OscillatorState oscillator2_;
-    FilterState filter_;
+    StateVariableFilter filter_;
     float steppedCv_;
     bool previousInternalPulseHigh_;
     bool externalClockHigh_;

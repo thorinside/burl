@@ -146,3 +146,35 @@ integrated-voice review.
 rights record cover the complete Burl 1.0.0 implementation and verified object
 at the recorded baseline. The pinned API dependency is compatible with the
 planned MIT release, and no unrecorded distributed source dependency remains.
+
+## Filter-character candidate delta review
+
+Review date: 2026-07-19
+
+Candidate branch reviewed: `codex/filter-character`
+
+This delta review covers the extracted filter, corrected internal source,
+resonance and drive behavior, and their focused tests and documentation:
+
+- `include/burl/filter.hpp`
+- `src/filter.cpp`
+- `include/burl/voice.hpp` and `src/voice.cpp`
+- `tests/filter_test.cpp`
+- filter source-routing and native parameter integration fixtures
+
+The implementation was authored directly from the approved behavioral plan
+and the repository's existing project-owned DSP interfaces. No third-party
+emulation source was accessed, copied, or mechanically translated. The only
+external source dependency remains the pinned official Expert Sleepers API
+submodule, which supplies the host ABI rather than instrument DSP.
+
+The filter equations, lookup values, input/output protection, and tests are
+project-original expressions of the specified Q curve, DC behavior, signal
+routing, and bounded resonant character. All new C++ sources retain the
+project MIT SPDX and copyright notice, and the frozen factory and positional
+parameter ABI remain unchanged.
+
+**Review conclusion:** the independent-development finding extends to the
+filter-character candidate. Release reassessment still requires a fixed source
+commit plus the planned physical-module listening, processor-load, and
+artifact evidence.

@@ -9,7 +9,8 @@ configured start state without reconstructing the object:
 - 127 mode masks the configured seed to seven bits and maps zero to state 1;
 - oscillator 1 returns to -2.5 V moving upward and oscillator 2 returns to
   +1.25 V moving downward;
-- both state-variable-filter integrators return to zero;
+- both state-variable-filter integrators and the prior-band character feedback
+  memory return to zero;
 - stepped CV is recomputed from the restored pattern and configured taps;
 - internal-pulse and external-Schmitt clock edge history returns to its known
   initial state; and

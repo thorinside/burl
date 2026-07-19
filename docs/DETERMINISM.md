@@ -9,7 +9,9 @@ identical:
 - configured seed;
 - measured-interval initial state, established by the same 257-frame pre-roll;
 - oscillator, pattern-generator, filter, routing-normal, tap, and quality
-  parameter values, including the same parameter change halfway through;
+  parameter values, including the extracted filter state, curved resonance,
+  PWM/stepped-CV source, drive conditioning, and the same parameter change
+  halfway through;
 - oscillator CV, external clock, filter audio, and cutoff CV input streams;
 - runtime sample rate; and
 - quality mode.
@@ -46,8 +48,8 @@ integrated voice test.
 
 Together these retained tests complete AC-004 for the host DSP implementation:
 identical seed, initial state, parameters, inputs, sample rate, and quality
-produce bit-exact repeated renders. The future native adapter must keep using
-this core and must not bypass this regression gate; native loading, routing,
+produce bit-exact repeated renders. The native adapter uses this core and must
+not bypass this regression gate; native loading, routing,
 preset, and hardware behavior are covered by their separate acceptance
 criteria.
 

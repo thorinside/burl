@@ -17,23 +17,25 @@ PLUGIN_CPPFLAGS := $(CPPFLAGS) -I$(API_DIR)/include
 BUILD_DIR := build
 HARDWARE_BUILD_DIR := $(BUILD_DIR)/hardware
 PLUGIN_OUTPUT := plugins/Burl.o
-PLUGIN_SOURCES := src/plugin.cpp src/pattern_generator.cpp src/voice.cpp
+PLUGIN_SOURCES := src/plugin.cpp src/pattern_generator.cpp src/filter.cpp src/voice.cpp
 PLUGIN_OBJECTS := $(patsubst %.cpp,$(HARDWARE_BUILD_DIR)/%.o,$(PLUGIN_SOURCES))
 PLUGIN_DEPS := $(PLUGIN_OBJECTS:.o=.d)
 PATTERN_TEST_BINARY := $(BUILD_DIR)/pattern_generator_test
 PATTERN_TEST_SOURCES := src/pattern_generator.cpp tests/pattern_generator_test.cpp
 DETERMINISM_TEST_BINARY := $(BUILD_DIR)/determinism_test
 DETERMINISM_TEST_SOURCES := src/pattern_generator.cpp tests/determinism_test.cpp
+FILTER_TEST_BINARY := $(BUILD_DIR)/filter_test
+FILTER_TEST_SOURCES := src/filter.cpp tests/filter_test.cpp
 VOICE_DETERMINISM_TEST_BINARY := $(BUILD_DIR)/voice_determinism_test
-VOICE_DETERMINISM_TEST_SOURCES := src/pattern_generator.cpp src/voice.cpp tests/voice_determinism_test.cpp
+VOICE_DETERMINISM_TEST_SOURCES := src/pattern_generator.cpp src/filter.cpp src/voice.cpp tests/voice_determinism_test.cpp
 VOICE_PWM_TEST_BINARY := $(BUILD_DIR)/voice_pwm_test
-VOICE_PWM_TEST_SOURCES := src/pattern_generator.cpp src/voice.cpp tests/voice_pwm_test.cpp
+VOICE_PWM_TEST_SOURCES := src/pattern_generator.cpp src/filter.cpp src/voice.cpp tests/voice_pwm_test.cpp
 VOICE_SOURCE_ROUTING_TEST_BINARY := $(BUILD_DIR)/voice_source_routing_test
-VOICE_SOURCE_ROUTING_TEST_SOURCES := src/pattern_generator.cpp src/voice.cpp tests/voice_source_routing_test.cpp
+VOICE_SOURCE_ROUTING_TEST_SOURCES := src/pattern_generator.cpp src/filter.cpp src/voice.cpp tests/voice_source_routing_test.cpp
 VOICE_RESET_TEST_BINARY := $(BUILD_DIR)/voice_reset_test
-VOICE_RESET_TEST_SOURCES := src/pattern_generator.cpp src/voice.cpp tests/voice_reset_test.cpp
+VOICE_RESET_TEST_SOURCES := src/pattern_generator.cpp src/filter.cpp src/voice.cpp tests/voice_reset_test.cpp
 VOICE_STRESS_TEST_BINARY := $(BUILD_DIR)/voice_stress_test
-VOICE_STRESS_TEST_SOURCES := src/pattern_generator.cpp src/voice.cpp tests/voice_stress_test.cpp
+VOICE_STRESS_TEST_SOURCES := src/pattern_generator.cpp src/filter.cpp src/voice.cpp tests/voice_stress_test.cpp
 VOICE_STRESS_SANITIZER_BINARY := $(BUILD_DIR)/voice_stress_test_sanitize
 PLUGIN_TEST_BINARY := $(BUILD_DIR)/plugin_integration_test
 PLUGIN_TEST_SOURCES := tests/plugin_integration_test.cpp $(PLUGIN_SOURCES)
@@ -44,9 +46,10 @@ RELEASE_BRANDING_TEST_SOURCES := tests/release_branding_test.cpp
 
 all: test hardware
 
-test: $(PATTERN_TEST_BINARY) $(DETERMINISM_TEST_BINARY) $(VOICE_DETERMINISM_TEST_BINARY) $(VOICE_PWM_TEST_BINARY) $(VOICE_SOURCE_ROUTING_TEST_BINARY) $(VOICE_RESET_TEST_BINARY) $(VOICE_STRESS_TEST_BINARY) $(PLUGIN_TEST_BINARY)
+test: $(PATTERN_TEST_BINARY) $(DETERMINISM_TEST_BINARY) $(FILTER_TEST_BINARY) $(VOICE_DETERMINISM_TEST_BINARY) $(VOICE_PWM_TEST_BINARY) $(VOICE_SOURCE_ROUTING_TEST_BINARY) $(VOICE_RESET_TEST_BINARY) $(VOICE_STRESS_TEST_BINARY) $(PLUGIN_TEST_BINARY)
 	./$(PATTERN_TEST_BINARY)
 	./$(DETERMINISM_TEST_BINARY)
+	./$(FILTER_TEST_BINARY)
 	./$(VOICE_DETERMINISM_TEST_BINARY)
 	./$(VOICE_PWM_TEST_BINARY)
 	./$(VOICE_SOURCE_ROUTING_TEST_BINARY)
@@ -63,31 +66,34 @@ $(PATTERN_TEST_BINARY): $(PATTERN_TEST_SOURCES) include/burl/pattern_generator.h
 $(DETERMINISM_TEST_BINARY): $(DETERMINISM_TEST_SOURCES) include/burl/pattern_generator.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(DETERMINISM_TEST_SOURCES) -o $@
 
-$(VOICE_DETERMINISM_TEST_BINARY): $(VOICE_DETERMINISM_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/voice.hpp | $(BUILD_DIR)
+$(FILTER_TEST_BINARY): $(FILTER_TEST_SOURCES) include/burl/filter.hpp | $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(FILTER_TEST_SOURCES) -o $@
+
+$(VOICE_DETERMINISM_TEST_BINARY): $(VOICE_DETERMINISM_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(VOICE_DETERMINISM_TEST_SOURCES) -o $@
 
-$(VOICE_PWM_TEST_BINARY): $(VOICE_PWM_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/voice.hpp | $(BUILD_DIR)
+$(VOICE_PWM_TEST_BINARY): $(VOICE_PWM_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(VOICE_PWM_TEST_SOURCES) -o $@
 
-$(VOICE_SOURCE_ROUTING_TEST_BINARY): $(VOICE_SOURCE_ROUTING_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/voice.hpp | $(BUILD_DIR)
+$(VOICE_SOURCE_ROUTING_TEST_BINARY): $(VOICE_SOURCE_ROUTING_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(VOICE_SOURCE_ROUTING_TEST_SOURCES) -o $@
 
-$(VOICE_RESET_TEST_BINARY): $(VOICE_RESET_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/voice.hpp | $(BUILD_DIR)
+$(VOICE_RESET_TEST_BINARY): $(VOICE_RESET_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(VOICE_RESET_TEST_SOURCES) -o $@
 
-$(VOICE_STRESS_TEST_BINARY): $(VOICE_STRESS_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/voice.hpp | $(BUILD_DIR)
+$(VOICE_STRESS_TEST_BINARY): $(VOICE_STRESS_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(VOICE_STRESS_TEST_SOURCES) -o $@
 
-$(VOICE_STRESS_SANITIZER_BINARY): $(VOICE_STRESS_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/voice.hpp | $(BUILD_DIR)
+$(VOICE_STRESS_SANITIZER_BINARY): $(VOICE_STRESS_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(SANITIZER_FLAGS) $(VOICE_STRESS_TEST_SOURCES) -o $@
 
-$(PLUGIN_TEST_BINARY): $(PLUGIN_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/voice.hpp $(API_DIR)/include/distingnt/api.h | $(BUILD_DIR)
+$(PLUGIN_TEST_BINARY): $(PLUGIN_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp $(API_DIR)/include/distingnt/api.h | $(BUILD_DIR)
 	$(CXX) $(PLUGIN_CPPFLAGS) $(CXXFLAGS) $(SANITIZER_FLAGS) $(PLUGIN_TEST_SOURCES) -o $@
 
 $(RELEASE_BRANDING_TEST_BINARY): $(RELEASE_BRANDING_TEST_SOURCES) | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(RELEASE_BRANDING_TEST_SOURCES) -o $@
 
-$(HARDWARE_BUILD_DIR)/%.o: %.cpp include/burl/pattern_generator.hpp include/burl/voice.hpp $(API_DIR)/include/distingnt/api.h
+$(HARDWARE_BUILD_DIR)/%.o: %.cpp include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp $(API_DIR)/include/distingnt/api.h
 	@mkdir -p $(@D)
 	$(ARM_CXX) $(PLUGIN_CPPFLAGS) $(HARDWARE_FLAGS) -MMD -MP -c -o $@ $<
 

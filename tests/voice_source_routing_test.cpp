@@ -155,11 +155,63 @@ void testClockRouteReplacesInternalClock() {
            "external Schmitt rising edge must clock when external clock is selected");
 }
 
+burl::VoiceParameters filterSourceParameters(bool externalInput) {
+    burl::VoiceParameters parameters;
+    parameters.oscillator1Hz = 41.0f;
+    parameters.oscillator2Hz = 73.0f;
+    parameters.oscillator1CrossModulation = 0.37f;
+    parameters.oscillator2CrossModulation = -0.21f;
+    parameters.oscillator1Feedback = 0.18f;
+    parameters.oscillator2Feedback = -0.12f;
+    parameters.change = 0.43f;
+    parameters.filterCutoffHz = 617.0f;
+    parameters.filterResonance = 0.74f;
+    parameters.filterFeedback = 0.0f;
+    parameters.externalCutoffModulation = 0.0f;
+    parameters.externalInputMix = externalInput ? 1.0f : 0.0f;
+    parameters.inputDrive = 1.0f;
+    parameters.safetyLimit = false;
+    parameters.quality = burl::QualityEco;
+    return parameters;
+}
+
+void testInternalPwmAndSteppedCvSourceMatchesExternalReference() {
+    const uint8_t seed = 0x5du;
+    burl::Voice internalSource(48000.0f, seed);
+    burl::Voice externalReference(48000.0f, seed);
+    internalSource.setParameters(filterSourceParameters(false));
+    externalReference.setParameters(filterSourceParameters(true));
+    internalSource.reset();
+    externalReference.reset();
+
+    burl::VoiceInputs silentInputs;
+    for (unsigned int frame = 0u; frame < 8192u; ++frame) {
+        const burl::VoiceOutputs sourceOutput = internalSource.process(
+            silentInputs);
+        burl::VoiceInputs referenceInputs;
+        referenceInputs.filterAudio = sourceOutput.pwm
+            + 0.10f * sourceOutput.steppedCv;
+        const burl::VoiceOutputs referenceOutput = externalReference.process(
+            referenceInputs);
+
+        expectNear(sourceOutput.lowPass, referenceOutput.lowPass, 0.0f,
+                   "internal LP source must equal external PWM plus prior stepped CV");
+        expectNear(sourceOutput.bandPass, referenceOutput.bandPass, 0.0f,
+                   "internal BP source must equal external PWM plus prior stepped CV");
+        expectNear(sourceOutput.highPass, referenceOutput.highPass, 0.0f,
+                   "internal HP source must equal external PWM plus prior stepped CV");
+        if (failures != 0) {
+            break;
+        }
+    }
+}
+
 } // namespace
 
 int main() {
     testOscillatorCvRoutesReplaceInternalNormals();
     testClockRouteReplacesInternalClock();
+    testInternalPwmAndSteppedCvSourceMatchesExternalReference();
 
     if (failures != 0) {
         std::cerr << failures << " source-routing assertion(s) failed\n";

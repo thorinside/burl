@@ -134,3 +134,18 @@ Version 1.0.0 is release-ready. Public releases are created only from explicit
 `v*` version tags: `.github/workflows/release.yaml` repeats full verification,
 packages `programs/plug-ins/Burl.o` as `Burl-plugin.zip`, and attaches the
 archive to the matching GitHub Release.
+
+## Unreleased filter-character candidate
+
+The `codex/filter-character` branch preserves the public `ThBu` factory GUID,
+all 50 positional parameters and defaults, pages, routes, and v1 preset format.
+It changes internal filter sound and response only. The candidate intentionally
+adds no self-oscillation, character, or DC-block parameter; LP, BP, and HP stay
+DC-coupled, and users can AC-couple downstream when required.
+
+The retained host/native gate is `make verify`. Before any follow-up tag or
+release, the owner must also complete matched v1.0.0/candidate LP/BP/HP
+recordings on the physical module and accept ping character, resonant skew,
+decay, sub-audio behavior, offsets/headroom, reset behavior, and the established
+processor-load ceilings. Until those checks are recorded, this section is a
+candidate record rather than a release claim.

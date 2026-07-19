@@ -374,6 +374,133 @@ void testPluginIntegration() {
     std::free(sram);
 }
 
+float renderInputDriveRms(const _NT_factory* factory,
+                          _NT_algorithm* algorithm,
+                          std::vector<int16_t>& values,
+                          int driveParameter,
+                          int reseedParameter,
+                          int driveValue,
+                          float inputAmplitude) {
+    values[driveParameter] = static_cast<int16_t>(driveValue);
+    factory->parameterChanged(algorithm, driveParameter);
+    reseed(factory, algorithm, values, reseedParameter);
+
+    const int numFrames = 128;
+    const unsigned int warmupBlocks = 128u;
+    const unsigned int captureBlocks = 128u;
+    std::vector<float> buses(kNT_lastBus * numFrames, 0.0f);
+    double squared = 0.0;
+    unsigned int samples = 0u;
+    unsigned int absoluteFrame = 0u;
+    for (unsigned int block = 0u;
+         block < warmupBlocks + captureBlocks; ++block) {
+        std::fill(buses.begin(), buses.end(), 0.0f);
+        for (int frame = 0; frame < numFrames; ++frame, ++absoluteFrame) {
+            buses[frame] = inputAmplitude * std::sin(
+                2.0 * 3.14159265358979323846 * 100.0
+                * static_cast<double>(absoluteFrame)
+                / static_cast<double>(NT_globals.sampleRate));
+        }
+        factory->step(algorithm, buses.data(), numFrames / 4);
+        if (block >= warmupBlocks) {
+            for (int frame = 0; frame < numFrames; ++frame) {
+                const float output = buses[12 * numFrames + frame];
+                squared += static_cast<double>(output) * output;
+                ++samples;
+            }
+        }
+    }
+    return static_cast<float>(std::sqrt(squared / samples));
+}
+
+void testInputDriveHostControlAndSaturation() {
+    const _NT_factory* factory = reinterpret_cast<const _NT_factory*>(
+        pluginEntry(kNT_selector_factoryInfo, 0));
+    assert(factory != nullptr);
+
+    _NT_algorithmRequirements requirements = {};
+    factory->calculateRequirements(requirements, nullptr);
+    void* sram = nullptr;
+    void* dtc = nullptr;
+    _NT_algorithm* algorithm = constructTestAlgorithm(
+        factory, requirements, sram, dtc);
+
+    std::vector<int16_t> values(requirements.numParameters);
+    for (uint32_t index = 0; index < requirements.numParameters; ++index)
+        values[index] = algorithm->parameters[index].def;
+
+    const int drive = findParameter(
+        algorithm, requirements.numParameters, "Input drive");
+    const int inputMix = findParameter(
+        algorithm, requirements.numParameters, "Input mix");
+    const int externalAudio = findParameter(
+        algorithm, requirements.numParameters, "External audio input");
+    const int cutoff = findParameter(
+        algorithm, requirements.numParameters, "Cutoff");
+    const int resonance = findParameter(
+        algorithm, requirements.numParameters, "Resonance");
+    const int steppedToCutoff = findParameter(
+        algorithm, requirements.numParameters, "Stepped to cutoff");
+    const int outputLimit = findParameter(
+        algorithm, requirements.numParameters, "Output limit");
+    const int quality = findParameter(
+        algorithm, requirements.numParameters, "Quality");
+    const int lowPassOutput = findParameter(
+        algorithm, requirements.numParameters, "Low-pass output");
+    const int reseedParameter = findParameter(
+        algorithm, requirements.numParameters, "Reseed");
+    assert(drive >= 0 && inputMix >= 0 && externalAudio >= 0);
+    assert(cutoff >= 0 && resonance >= 0 && steppedToCutoff >= 0);
+    assert(outputLimit >= 0 && quality >= 0 && lowPassOutput >= 0);
+    assert(reseedParameter >= 0);
+
+    assert(algorithm->parameters[drive].min == 25);
+    assert(algorithm->parameters[drive].max == 400);
+    assert(algorithm->parameters[drive].def == 100);
+    char driveText[kNT_parameterStringSize] = {};
+    assert(factory->parameterString(
+        algorithm, drive, 25, driveText) > 0);
+    assert(std::strcmp(driveText, "0.25x") == 0);
+    assert(factory->parameterString(
+        algorithm, drive, 400, driveText) > 0);
+    assert(std::strcmp(driveText, "4.00x") == 0);
+
+    values[inputMix] = 0;          // Fully external.
+    values[externalAudio] = 1;     // Bus 1.
+    values[cutoff] = 10000;        // Keep the 100 Hz measurement in-band.
+    values[resonance] = 0;
+    values[steppedToCutoff] = 0;
+    values[outputLimit] = 0;
+    values[quality] = 0;
+    values[lowPassOutput] = 13;
+    values[lowPassOutput + 1] = 1;
+    applyParameterSnapshot(factory, algorithm, values, false);
+
+    const float lowQuarter = renderInputDriveRms(
+        factory, algorithm, values, drive, reseedParameter, 25, 0.25f);
+    const float lowHalf = renderInputDriveRms(
+        factory, algorithm, values, drive, reseedParameter, 50, 0.25f);
+    const float lowOne = renderInputDriveRms(
+        factory, algorithm, values, drive, reseedParameter, 100, 0.25f);
+    const float lowTwo = renderInputDriveRms(
+        factory, algorithm, values, drive, reseedParameter, 200, 0.25f);
+    assert(std::fabs(lowHalf / lowQuarter - 2.0f) < 0.005f);
+    assert(std::fabs(lowOne / lowHalf - 2.0f) < 0.005f);
+    assert(std::fabs(lowTwo / lowOne - 2.0f) < 0.005f);
+
+    const float normalOne = renderInputDriveRms(
+        factory, algorithm, values, drive, reseedParameter, 100, 5.0f);
+    const float normalTwo = renderInputDriveRms(
+        factory, algorithm, values, drive, reseedParameter, 200, 5.0f);
+    const float normalFour = renderInputDriveRms(
+        factory, algorithm, values, drive, reseedParameter, 400, 5.0f);
+    assert(normalOne < normalTwo && normalTwo < normalFour);
+    assert(normalFour < normalTwo * 1.75f);
+
+    std::free(dtc);
+    std::free(sram);
+}
+
 const std::size_t kMemoryGuardBytes = 64u;
 const unsigned char kMemoryGuardValue = 0xa5u;
 
@@ -614,6 +741,7 @@ void testPresetCompatibility() {
 
 int main() {
     testPluginIntegration();
+    testInputDriveHostControlAndSaturation();
     testRuntimeQualitySwitching();
     testPresetCompatibility();
     std::puts("All Burl plug-in integration tests passed");
