@@ -138,7 +138,8 @@ Both are included in `make verify`.
   digital delay and full nonlinear loop still need listening comparison.
 - The retained 48 kHz listening renders are 16-bit convenience artifacts; the
   numerical oracle uses 24-bit files and double internal state.
-- No hardware recording was used to tune this correction. Matched physical
-  LP/BP/HP captures and owner listening remain the release gate.
+- No hardware recording was used to tune this correction. The owner completed
+  and accepted direct physical-module listening on 2026-07-19; the retained
+  matched WAVs remain code-generated evidence rather than hardware captures.
 - LP, BP, and HP remain DC-coupled. The LP offset and sub-audio response are
   intentional; downstream AC coupling is the user's choice.

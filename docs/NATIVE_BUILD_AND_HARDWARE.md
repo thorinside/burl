@@ -26,8 +26,9 @@ The unresolved symbols reported by `make check` are limited to disting NT host
 services, position-independent linkage, memory intrinsics, and firmware math
 runtime functions.
 
-The unreleased filter-character candidate is 8,761 bytes by section total and
-has SHA-256
+The hardware-accepted 1.0.1 implementation baseline
+`ca97c425acc9390d0ce2715c3b13ed6967061f19` is 8,761 bytes by section total and
+has local SHA-256
 `107869f478d5c23583945ad30898dd679bc053293f6c69de338a7c34f25e4dce`.
 
 ## API and host integration checks
@@ -81,3 +82,24 @@ owner subsequently completed the separate listening, two-Eco dropout, display,
 external-clock, and reset checks in the approved Portal acceptance forms. The
 retained positional-ABI, Seeded-restoration harness, and live preset round-trip
 are documented in [PRESETS.md](PRESETS.md).
+
+## Version 1.0.1 hardware acceptance
+
+On 2026-07-19, NT Push loaded the exact local object above and reported
+`Success!`. A live nt_helper inspection then found one connected `ThBu` / Burl
+slot with all nine optional inputs at `None`, the eight outputs still routed to
+Outputs 1-8, Quality restored to Normal, and the owner's sound patch unchanged
+apart from the intended plug-in update.
+
+The owner listened to the final Eurorack-level filter output on the physical
+module and reported, "Sounds great," authorizing shipment. Reversible live
+Quality checks measured the updated one-instance CPU envelope as:
+
+- Eco: 25% slot, 25% total;
+- Normal: 44-45% slot, 45% total; and
+- High: 82% slot, 84% total.
+
+High remained below the module's critical range. The check restored the exact
+Normal value before release preparation. These measurements replace the 1.0.0
+numbers for the filter-character implementation; the earlier two-Eco dropout
+acceptance remains the retained multi-instance baseline.

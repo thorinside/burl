@@ -7,7 +7,7 @@ a triangle comparator, and a resonant multimode filter.
 
 ## Project status
 
-Burl 1.0.0 is a release-ready disting NT C++ API v13 plug-in with factory GUID
+Burl 1.0.1 is a released disting NT C++ API v13 plug-in with factory GUID
 `ThBu` and a host-tested integrated DSP voice. The plug-in exposes 50
 parameters on 11 standard pages, nine optional input routes, and eight
 independently routed Add/Replace outputs.
@@ -21,34 +21,34 @@ acceptance checks on the target module. The project is prepared for a free,
 open-source MIT release. Version-tagged builds and release downloads are hosted
 on [GitHub Releases](https://github.com/thorinside/burl/releases).
 
-The `codex/filter-character` branch is an unreleased filter-character
-candidate. It corrects the internal PWM/stepped-CV source, resonance ping
+Burl 1.0.1 corrects the internal PWM/stepped-CV source, resonance ping
 response, level-matched transparent `Input drive` behavior, and final
 Eurorack-level filter output normalization while retaining the frozen `ThBu`
 identity and all 50 positional parameters. LP, BP, and HP remain
 DC-coupled; LP can carry slow or steady offsets by design. Every input and
 output route supports `None`, while the eight output defaults remain hardware
-Outputs 1-8. This candidate must
-pass owner listening and processor-load acceptance on the physical module
-before a follow-up release is cut. See the
+Outputs 1-8. The owner accepted the loaded hardware sound and the three-mode
+processor-load envelope before release. See the
 [filter verification record](docs/FILTER_CHARACTER.md) and
-[unreleased notes](CHANGELOG.md).
+[release notes](CHANGELOG.md).
 
 ## Release metadata
 
-- **Version:** 1.0.0
+- **Version:** 1.0.1
 - **Author:** Neal Sanche
 - **Homepage:** <https://github.com/thorinside/burl>
 - **License:** MIT
 - **Repository tags:** `disting-nt`, `eurorack`, `synthesizer`, `audio-plugin`,
   `dsp`, `chaotic-synthesizer`, `feedback-shift-register`, `cpp`
+- **Version 1.0.1 implementation and hardware baseline:**
+  `ca97c425acc9390d0ce2715c3b13ed6967061f19`
+- **Hardware-validated object SHA-256:**
+  `107869f478d5c23583945ad30898dd679bc053293f6c69de338a7c34f25e4dce`
 - **Version 1.0.0 tag:** `cfafd2caba73071876b920ee92f7144965c7f3c9`
-- **Hosted object SHA-256:**
+- **Version 1.0.0 hosted object SHA-256:**
   `e99e94514f463d3d5e51b843187fad216485a440101caf9d57886794a519d5a0`
-- **Hosted archive SHA-256:**
+- **Version 1.0.0 hosted archive SHA-256:**
   `457fc9108a182f3e834ae930341468f000ca51f0e30706cbc6a8dceba5e9236a`
-- **Hardware-validation baseline:**
-  `7def2805849cd98dc77b7ee6d860e054db54b1b5`
 
 ## Install
 

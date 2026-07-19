@@ -6,7 +6,7 @@ project risk record, not legal advice.
 ## Recorded decisions
 
 - **Public name:** Burl.
-- **Release version:** 1.0.0.
+- **Release version:** 1.0.1.
 - **Release author:** Neal Sanche.
 - **Project homepage:** <https://github.com/thorinside/burl>.
 - **Repository tags:** `disting-nt`, `eurorack`, `synthesizer`, `audio-plugin`,
@@ -135,17 +135,33 @@ Version 1.0.0 is release-ready. Public releases are created only from explicit
 packages `programs/plug-ins/Burl.o` as `Burl-plugin.zip`, and attaches the
 archive to the matching GitHub Release.
 
-## Unreleased filter-character candidate
+## Version 1.0.1 filter-character release record
 
-The `codex/filter-character` branch preserves the public `ThBu` factory GUID,
-all 50 positional parameters and defaults, pages, routes, and v1 preset format.
-It changes internal filter sound and response only. The candidate intentionally
-adds no self-oscillation, character, or DC-block parameter; LP, BP, and HP stay
-DC-coupled, and users can AC-couple downstream when required.
+Version 1.0.1 preserves the public `ThBu` factory GUID, all 50 positional
+parameters and defaults, pages, routes, and v1 preset format. It changes
+internal filter sound and response and permits `None` on every output without
+changing any default route. It adds no self-oscillation, character, or DC-block
+parameter; LP, BP, and HP stay DC-coupled, and users can AC-couple downstream
+when required.
 
-The retained host/native gate is `make verify`. Before any follow-up tag or
-release, the owner must also complete matched v1.0.0/candidate LP/BP/HP
-recordings on the physical module and accept ping character, resonant skew,
-decay, sub-audio behavior, offsets/headroom, reset behavior, and the established
-processor-load ceilings. Until those checks are recorded, this section is a
-candidate record rather than a release claim.
+- **Implementation and hardware baseline:**
+  `ca97c425acc9390d0ce2715c3b13ed6967061f19`.
+- **Hardware-validated local object:** 8,761 bytes by section total, SHA-256
+  `107869f478d5c23583945ad30898dd679bc053293f6c69de338a7c34f25e4dce`.
+- **Verification:** `make verify` passed the host, sanitizer, deterministic WAV,
+  five-rate 16x oracle, native build, undefined-symbol, size, branding, preset,
+  routing, reset, and safety gates.
+- **Physical listening:** NT Push reported `Success!`; the connected module
+  exposed the expected `ThBu` / Burl slot, and the owner reported, "Sounds
+  great," after hearing the final output stage.
+- **Processor load:** one instance measured 25% total in Eco, 45% total in
+  Normal, and 84% total in High. Quality was restored to Normal after the
+  reversible check.
+- **Audio evidence:** matched v1.0.0, faulty-candidate, corrected-candidate, and
+  independent-reference WAVs and metrics are retained in
+  `verification/theoretical-audio`. No physical WAV was used to tune the
+  release; direct owner listening supplied the physical acceptance judgment.
+
+The owner authorized shipment on 2026-07-19. The public tag, hosted workflow
+run, and hosted artifact checksums are appended after the tag-triggered build
+completes.

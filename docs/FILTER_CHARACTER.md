@@ -114,5 +114,6 @@ The code-generated listening fixtures, pre/post static metrics, and five-rate
 16x oracle are documented in
 [`THEORETICAL_AUDIO_VERIFICATION.md`](THEORETICAL_AUDIO_VERIFICATION.md).
 
-The host and native checks are necessary but do not replace the pending owner
-listening comparison on the physical module for this unreleased candidate.
+The owner accepted the final loaded object by direct listening on the physical
+module on 2026-07-19. That hardware judgment remains the sound-quality oracle;
+the retained fixtures establish repeatability and regression coverage.

@@ -181,7 +181,8 @@ project-specific choices rather than claims about the original circuit. All
 new C++ sources retain the project MIT SPDX and copyright notice, and the
 frozen factory and positional parameter ABI remain unchanged.
 
-**Review conclusion:** the independent-development finding extends to the
-filter-character candidate. Release reassessment still requires a fixed source
-commit plus the planned physical-module listening, processor-load, and
-artifact evidence.
+**Review conclusion:** the independent-development finding extends to Burl
+1.0.1. The fixed implementation baseline is
+`ca97c425acc9390d0ce2715c3b13ed6967061f19`; full host/native verification,
+physical-module listening, updated processor-load measurements, and the local
+artifact hash are retained in the release records.

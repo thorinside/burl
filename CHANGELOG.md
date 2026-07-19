@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.0.1 - 2026-07-19
+
 - Extract the multimode state-variable filter into a directly tested,
   allocation-free DSP component.
 - Correct the internal filter source to the V1 resistor-network estimate for
@@ -24,6 +26,6 @@
 - Add deterministic pre/post listening WAVs, static/limiter analysis, and a
   five-rate 16x double-precision/511-tap-FIR numerical oracle to `make verify`.
 
-This candidate retains the v1 `ThBu` factory identity and all 50 positional
-parameters. A version number will be assigned only after physical-module
-listening and processor-load acceptance.
+This release retains the v1 `ThBu` factory identity and all 50 positional
+parameters. It completed physical-module listening and processor-load
+acceptance before release.
