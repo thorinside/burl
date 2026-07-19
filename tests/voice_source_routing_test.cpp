@@ -189,21 +189,60 @@ void testInternalPwmAndSteppedCvSourceMatchesExternalReference() {
         const burl::VoiceOutputs sourceOutput = internalSource.process(
             silentInputs);
         burl::VoiceInputs referenceInputs;
-        referenceInputs.filterAudio = sourceOutput.pwm
-            + 0.10f * sourceOutput.steppedCv;
+        // External audio is a nominal +/-5 V source. Normalize the published
+        // V1 PWM/RUNCV summer to that range so both sides of Input mix have
+        // the same filter-summer headroom.
+        referenceInputs.filterAudio =
+            (0.021872f * sourceOutput.pwm
+             + 0.044231f * sourceOutput.steppedCv)
+            / 0.066103f;
         const burl::VoiceOutputs referenceOutput = externalReference.process(
             referenceInputs);
 
-        expectNear(sourceOutput.lowPass, referenceOutput.lowPass, 0.0f,
-                   "internal LP source must equal external PWM plus prior stepped CV");
-        expectNear(sourceOutput.bandPass, referenceOutput.bandPass, 0.0f,
-                   "internal BP source must equal external PWM plus prior stepped CV");
-        expectNear(sourceOutput.highPass, referenceOutput.highPass, 0.0f,
-                   "internal HP source must equal external PWM plus prior stepped CV");
+        expectNear(sourceOutput.lowPass, referenceOutput.lowPass, 0.000001f,
+                   "internal LP source must match the V1 input-network forcing");
+        expectNear(sourceOutput.bandPass, referenceOutput.bandPass, 0.000001f,
+                   "internal BP source must match the V1 input-network forcing");
+        expectNear(sourceOutput.highPass, referenceOutput.highPass, 0.000001f,
+                   "internal HP source must match the V1 input-network forcing");
         if (failures != 0) {
             break;
         }
     }
+}
+
+void testNominalExternalAudioDoesNotOverdriveV1Summer() {
+    burl::VoiceParameters parameters = filterSourceParameters(true);
+    parameters.filterCutoffHz = 250.0f;
+    parameters.filterResonance = 0.62f;
+    parameters.inputDrive = 1.0f;
+    parameters.safetyLimit = true;
+    parameters.quality = burl::QualityNormal;
+
+    burl::Voice voice(48000.0f, 0x5du);
+    voice.setParameters(parameters);
+    voice.reset();
+
+    const unsigned int warmupFrames = 24000u;
+    const unsigned int measurementFrames = 480000u;
+    unsigned int limitedFrames = 0u;
+    for (unsigned int frame = 0u;
+         frame < warmupFrames + measurementFrames; ++frame) {
+        burl::VoiceInputs inputs;
+        const float phase = std::fmod(
+            53.0f * static_cast<float>(frame) / 48000.0f, 1.0f);
+        inputs.filterAudio = phase < 0.5f ? 5.0f : -5.0f;
+        const burl::VoiceOutputs output = voice.process(inputs);
+        if (frame >= warmupFrames
+            && (std::fabs(output.lowPass) >= 8.0f
+                || std::fabs(output.bandPass) >= 8.0f
+                || std::fabs(output.highPass) >= 8.0f)) {
+            ++limitedFrames;
+        }
+    }
+
+    expect(limitedFrames <= measurementFrames / 100u,
+           "nominal +/-5 V external audio at 1x must retain V1 summer headroom");
 }
 
 } // namespace
@@ -212,6 +251,7 @@ int main() {
     testOscillatorCvRoutesReplaceInternalNormals();
     testClockRouteReplacesInternalClock();
     testInternalPwmAndSteppedCvSourceMatchesExternalReference();
+    testNominalExternalAudioDoesNotOverdriveV1Summer();
 
     if (failures != 0) {
         std::cerr << failures << " source-routing assertion(s) failed\n";

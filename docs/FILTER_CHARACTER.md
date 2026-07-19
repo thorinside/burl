@@ -7,21 +7,27 @@ The filter is an allocation-free topology-preserving state-variable filter in
 from the same internal state and is processed at the voice's selected common
 internal quality rate.
 
-With no external audio route selected, the filter source is the bipolar PWM
-comparator plus ten percent of the stepped-CV value from the start of that
-internal step:
+The internal source follows the zero-state forcing derived from the published
+V1 input resistor network, converted from the documented native source ranges
+to Burl's +/-5 V digital PWM and stepped CV:
 
 ```text
-internal source = PWM + 0.10 * previous stepped CV
+internal forcing = 0.021872 * PWM
+                 + 0.044231 * previous stepped CV
 ```
 
-The existing `Input mix` path crossfades linearly between that source and the
-conditioned external audio input. `Input drive` then applies 0.25x through 4x
-gain before the filter. Protection is exactly linear through +/-10 V after
-drive and approaches +/-12 V progressively above that knee. Ordinary +/-5 V
-operation at 1x drive is therefore unchanged; higher drive settings add a
-bounded pre-filter saturation region instead of behaving as plain gain into a
-hard output ceiling.
+For level-matched `Input mix` behavior, the weighted internal source is first
+normalized to +/-5 V. It crossfades linearly with the conditioned external
+audio and then receives the common `0.066103` forcing gain. A nominal +/-5 V
+external input therefore reaches the filter summer at up to +/-0.330515 V,
+instead of jumping roughly fifteen-fold above the internal endpoint.
+
+`Input drive` then applies 0.25x through 4x gain before the filter. Protection
+is exactly linear through +/-10 V at the driven filter input and approaches
++/-12 V progressively above that knee. Because the source-scaled voice path
+cannot reach that knee from an ordinary +/-5 V input even at 4x, `Input drive`
+is transparent gain throughout its supported host range. The soft bound is
+retained as emergency protection, not as an ordinary waveshaper.
 
 ## Resonance and ping behavior
 
@@ -37,17 +43,18 @@ runs from Q 0.5 to Q 20 and always supplies positive damping, so the filter can
 ring strongly after an edge without starting or sustaining an oscillator from
 silence.
 
-The driven input is compensated by `1 - 0.25 * r^2`. Resonant waveform skew is
-derived from the previous first-pole state and added to the cutoff modulation
+The driven input is compensated by `1 - 0.25 * r^2`. The fixed V1 R39 path is
+represented by the previous first-pole state and added to the cutoff modulation
 before the existing cutoff calculation:
 
 ```text
-skew octaves = 0.5 * r^2 * clamp(previous band / 5, -1, 1)
+skew octaves = 0.5 * previous band volts
 ```
 
-That asymmetric frequency movement supplies controlled even and odd harmonic
-content at high resonance. It does not add another oscillator or a separate
-character control.
+The path is neither resonance-gated nor normalized/clamped. Its audible depth
+grows naturally as the first-pole amplitude grows with resonance. That
+asymmetric frequency movement supplies controlled even and odd harmonic
+content without adding another oscillator or a separate character control.
 
 At 96 kHz, the retained 250 Hz impulse fixture measures the final sample above
 -60 dB at approximately 42.5 ms for 62% resonance and 174.3 ms for maximum
@@ -78,19 +85,25 @@ silence stability, post-excitation decay, DC behavior, bounded drive response,
 and high-resonance even/odd harmonic generation.
 
 `tests/voice_source_routing_test.cpp` compares the internal-source render
-against a second voice receiving `PWM + 0.10 * previous stepped CV` through its
-external input and requires bit-exact LP, BP, and HP output.
+against a second voice receiving the normalized V1 PWM/RUNCV forcing through
+its external input, with a one-microvolt tolerance. It also requires nominal
++/-5 V external square audio at 1x drive to remain out of the limiter.
 
 `tests/plugin_integration_test.cpp` exercises `Input drive` through the actual
 NT parameter definition and callback. It verifies the frozen 25..400 host
 range and 0.25x..4.00x display, low-level gain ratios, and progressive
-saturation at normal input levels.
+protection outside normal input levels. It also requires 2x and 4x to remain
+linear at a nominal +/-5 V external input.
 
 Run the full retained verification with:
 
 ```sh
 make verify
 ```
+
+The code-generated listening fixtures, pre/post static metrics, and five-rate
+16x oracle are documented in
+[`THEORETICAL_AUDIO_VERIFICATION.md`](THEORETICAL_AUDIO_VERIFICATION.md).
 
 The host and native checks are necessary but do not replace the pending owner
 listening comparison on the physical module for this unreleased candidate.

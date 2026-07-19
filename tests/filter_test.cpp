@@ -173,7 +173,7 @@ float sineRms(float amplitude) {
     return static_cast<float>(std::sqrt(squared / count));
 }
 
-void testProgressiveInputDriveRegion() {
+void testTransparentInputProtection() {
     const float lowQuarter = sineRms(0.125f);
     const float lowHalf = sineRms(0.25f);
     const float lowOne = sineRms(0.5f);
@@ -189,9 +189,42 @@ void testProgressiveInputDriveRegion() {
     const float normalTwo = sineRms(10.0f);
     const float normalFour = sineRms(20.0f);
     expect(normalOne < normalTwo && normalTwo < normalFour,
-           "Input Drive must remain monotonic through its full range");
+           "input protection must remain monotonic through its full range");
     expect(normalFour < normalTwo * 1.75f,
-           "4x drive must enter progressive input saturation instead of plain gain");
+           "out-of-range input must enter progressive protection instead of plain gain");
+}
+
+void testV1NetworkSquareWaveHeadroom() {
+    burl::StateVariableFilter filter;
+    const unsigned int warmupFrames = 24000u;
+    const unsigned int measurementFrames = 480000u;
+    unsigned int lowPassLimited = 0u;
+    unsigned int bandPassLimited = 0u;
+    unsigned int highPassLimited = 0u;
+    for (unsigned int frame = 0u;
+         frame < warmupFrames + measurementFrames; ++frame) {
+        const float phase = std::fmod(
+            53.0f * static_cast<float>(frame) / kSampleRate, 1.0f);
+        // Worst-case same-sign PWM and RUNCV forcing from the published V1
+        // resistor network, converted to Burl's +/-5 V source ranges.
+        const float input = phase < 0.5f ? 0.330515f : -0.330515f;
+        const burl::StateVariableFilter::Frame output = filter.process(
+            input, 250.0f, 0.0f, 0.62f, kSampleRate, true);
+        if (frame < warmupFrames) {
+            continue;
+        }
+        lowPassLimited += std::fabs(output.lowPass) > 8.0f ? 1u : 0u;
+        bandPassLimited += std::fabs(output.bandPass) > 8.0f ? 1u : 0u;
+        highPassLimited += std::fabs(output.highPass) > 8.0f ? 1u : 0u;
+    }
+
+    const unsigned int maximumLimitedFrames = measurementFrames / 100u;
+    expect(lowPassLimited <= maximumLimitedFrames,
+           "V1-network square-wave LP must not live in the output limiter");
+    expect(bandPassLimited <= maximumLimitedFrames,
+           "V1-network square-wave BP must not live in the output limiter");
+    expect(highPassLimited <= maximumLimitedFrames,
+           "V1-network square-wave HP must not live in the output limiter");
 }
 
 void testHighResonanceAllHarmonicCharacter() {
@@ -242,7 +275,8 @@ int main() {
     testCurvedResonanceMapping();
     testPingDecayAndNoSelfOscillation();
     testDcCoupledOutputs();
-    testProgressiveInputDriveRegion();
+    testTransparentInputProtection();
+    testV1NetworkSquareWaveHeadroom();
     testHighResonanceAllHarmonicCharacter();
 
     if (failures != 0) {

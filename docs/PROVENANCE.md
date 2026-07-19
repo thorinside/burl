@@ -162,17 +162,24 @@ resonance and drive behavior, and their focused tests and documentation:
 - `tests/filter_test.cpp`
 - filter source-routing and native parameter integration fixtures
 
-The implementation was authored directly from the approved behavioral plan
-and the repository's existing project-owned DSP interfaces. No third-party
-emulation source was accessed, copied, or mechanically translated. The only
-external source dependency remains the pinned official Expert Sleepers API
-submodule, which supplies the host ABI rather than instrument DSP.
+The initial implementation was authored from the approved behavioral plan and
+the repository's existing project-owned DSP interfaces. After the static bug
+was reproduced, the correction was independently derived from Rob Hordijk's
+published 2009 schematic and technical notes, licensed-product manuals, and the
+SSM2164 manufacturer data sheet. The consulted primary sources and the boundary
+between explicit facts and circuit inference are recorded in
+`docs/FILTER_REFERENCE_RESEARCH.md`. No third-party emulation source was
+accessed, copied, or mechanically translated. The only compiled external source
+dependency remains the pinned official Expert Sleepers API submodule.
 
-The filter equations, lookup values, input/output protection, and tests are
-project-original expressions of the specified Q curve, DC behavior, signal
-routing, and bounded resonant character. All new C++ sources retain the
-project MIT SPDX and copyright notice, and the frozen factory and positional
-parameter ABI remain unchanged.
+The filter implementation, high-rate renderer, analysis scripts, lookup
+values, protection curves, and tests are project-original code. The V1 input
+coefficients and fixed character-path magnitude are independently calculated
+from published component values; the Q curve, quadratic input compensation,
+Input drive, and limiter curves remain project-specific hypotheses rather than
+claims about the original circuit. All new C++ sources retain the project MIT
+SPDX and copyright notice, and the frozen factory and positional parameter ABI
+remain unchanged.
 
 **Review conclusion:** the independent-development finding extends to the
 filter-character candidate. Release reassessment still requires a fixed source

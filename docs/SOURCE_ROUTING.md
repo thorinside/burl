@@ -15,9 +15,11 @@ route selected, only the conditioned external Schmitt state is edge-detected.
 The unselected source cannot clock the pattern generator.
 
 The filter has a similarly explicit internal source. With the external-audio
-crossfade fully internal, it receives the bipolar PWM comparator plus `0.10`
-times the stepped-CV value from the start of the current internal step. With
-the crossfade fully external, it receives the conditioned external signal.
+crossfade fully internal, the V1 resistor-network estimate supplies
+`0.021872 * PWM + 0.044231 * previous stepped CV`. Both internal and external
+sources crossfade in a normalized +/-5 V domain before the common `0.066103`
+filter-summer forcing gain, so selecting external audio does not introduce a
+large gain discontinuity.
 
 ## Retained test evidence
 
@@ -38,9 +40,11 @@ step:
   and
 - an external Schmitt rising edge clocks the register while the external route
   is selected and the internal oscillator has not produced an edge; and
-- a second identically configured voice receiving `PWM + 0.10 * previous
-  stepped CV` through its external audio input produces bit-exact LP, BP, and
-  HP samples for 8,192 Eco-mode frames.
+- a second identically configured voice receiving the normalized V1
+  PWM/RUNCV forcing through its external audio input matches LP, BP, and HP
+  samples within one microvolt for 8,192 Eco-mode frames; and
+- a nominal +/-5 V external square at 1x drive and 62% resonance spends no
+  more than 1% of a long render in the output limiter.
 
 The clock checks start from register state `0x01` at 1,024 Hz with oscillator 2
 at 256 Hz. The expected single direct-recirculation shift is therefore the

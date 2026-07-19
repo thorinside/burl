@@ -413,7 +413,7 @@ float renderInputDriveRms(const _NT_factory* factory,
     return static_cast<float>(std::sqrt(squared / samples));
 }
 
-void testInputDriveHostControlAndSaturation() {
+void testInputDriveHostControlAndTransparency() {
     const _NT_factory* factory = reinterpret_cast<const _NT_factory*>(
         pluginEntry(kNT_selector_factoryInfo, 0));
     assert(factory != nullptr);
@@ -494,8 +494,8 @@ void testInputDriveHostControlAndSaturation() {
         factory, algorithm, values, drive, reseedParameter, 200, 5.0f);
     const float normalFour = renderInputDriveRms(
         factory, algorithm, values, drive, reseedParameter, 400, 5.0f);
-    assert(normalOne < normalTwo && normalTwo < normalFour);
-    assert(normalFour < normalTwo * 1.75f);
+    assert(std::fabs(normalTwo / normalOne - 2.0f) < 0.005f);
+    assert(std::fabs(normalFour / normalTwo - 2.0f) < 0.005f);
 
     std::free(dtc);
     std::free(sram);
@@ -741,7 +741,7 @@ void testPresetCompatibility() {
 
 int main() {
     testPluginIntegration();
-    testInputDriveHostControlAndSaturation();
+    testInputDriveHostControlAndTransparency();
     testRuntimeQualitySwitching();
     testPresetCompatibility();
     std::puts("All Burl plug-in integration tests passed");

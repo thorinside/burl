@@ -37,12 +37,16 @@ VOICE_RESET_TEST_SOURCES := src/pattern_generator.cpp src/filter.cpp src/voice.c
 VOICE_STRESS_TEST_BINARY := $(BUILD_DIR)/voice_stress_test
 VOICE_STRESS_TEST_SOURCES := src/pattern_generator.cpp src/filter.cpp src/voice.cpp tests/voice_stress_test.cpp
 VOICE_STRESS_SANITIZER_BINARY := $(BUILD_DIR)/voice_stress_test_sanitize
+THEORETICAL_AUDIO_BINARY := $(BUILD_DIR)/render_theoretical_audio
+THEORETICAL_AUDIO_DIR := $(BUILD_DIR)/theoretical-audio
+FILTER_REFERENCE_BINARY := $(BUILD_DIR)/render_filter_reference
+FILTER_REFERENCE_DIR := $(BUILD_DIR)/filter-reference
 PLUGIN_TEST_BINARY := $(BUILD_DIR)/plugin_integration_test
 PLUGIN_TEST_SOURCES := tests/plugin_integration_test.cpp $(PLUGIN_SOURCES)
 RELEASE_BRANDING_TEST_BINARY := $(BUILD_DIR)/release_branding_test
 RELEASE_BRANDING_TEST_SOURCES := tests/release_branding_test.cpp
 
-.PHONY: all test stress-sanitize hardware check check-allocations size branding-check verify push clean
+.PHONY: all test stress-sanitize theoretical-audio theoretical-audio-check filter-reference filter-reference-check hardware check check-allocations size branding-check verify push clean
 
 all: test hardware
 
@@ -87,6 +91,30 @@ $(VOICE_STRESS_TEST_BINARY): $(VOICE_STRESS_TEST_SOURCES) include/burl/pattern_g
 $(VOICE_STRESS_SANITIZER_BINARY): $(VOICE_STRESS_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(SANITIZER_FLAGS) $(VOICE_STRESS_TEST_SOURCES) -o $@
 
+$(THEORETICAL_AUDIO_BINARY): tools/render_theoretical_audio.cpp src/pattern_generator.cpp src/filter.cpp src/voice.cpp include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp | $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) src/pattern_generator.cpp src/filter.cpp src/voice.cpp tools/render_theoretical_audio.cpp -o $@
+
+theoretical-audio: $(THEORETICAL_AUDIO_BINARY)
+	@rm -rf $(THEORETICAL_AUDIO_DIR)
+	@mkdir -p $(THEORETICAL_AUDIO_DIR)
+	$(THEORETICAL_AUDIO_BINARY) $(THEORETICAL_AUDIO_DIR)
+	python3 scripts/analyze_theoretical_audio.py $(THEORETICAL_AUDIO_DIR)
+
+theoretical-audio-check: theoretical-audio
+	python3 scripts/analyze_theoretical_audio.py $(THEORETICAL_AUDIO_DIR) --assert-clean
+
+$(FILTER_REFERENCE_BINARY): tools/render_filter_reference.cpp src/filter.cpp include/burl/filter.hpp | $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) src/filter.cpp tools/render_filter_reference.cpp -o $@
+
+filter-reference: $(FILTER_REFERENCE_BINARY)
+	@rm -rf $(FILTER_REFERENCE_DIR)
+	@mkdir -p $(FILTER_REFERENCE_DIR)
+	$(FILTER_REFERENCE_BINARY) $(FILTER_REFERENCE_DIR)
+	python3 scripts/compare_filter_reference.py $(FILTER_REFERENCE_DIR)
+
+filter-reference-check: filter-reference
+	python3 scripts/compare_filter_reference.py $(FILTER_REFERENCE_DIR) --assert-converges
+
 $(PLUGIN_TEST_BINARY): $(PLUGIN_TEST_SOURCES) include/burl/pattern_generator.hpp include/burl/filter.hpp include/burl/voice.hpp $(API_DIR)/include/distingnt/api.h | $(BUILD_DIR)
 	$(CXX) $(PLUGIN_CPPFLAGS) $(CXXFLAGS) $(SANITIZER_FLAGS) $(PLUGIN_TEST_SOURCES) -o $@
 
@@ -122,7 +150,7 @@ size: hardware
 branding-check: $(RELEASE_BRANDING_TEST_BINARY) hardware
 	./$(RELEASE_BRANDING_TEST_BINARY)
 
-verify: test stress-sanitize hardware check check-allocations size branding-check
+verify: test stress-sanitize theoretical-audio-check filter-reference-check hardware check check-allocations size branding-check
 
 push: hardware
 	$(NTPUSH) $(PLUGIN_OUTPUT)

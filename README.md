@@ -23,7 +23,7 @@ on [GitHub Releases](https://github.com/thorinside/burl/releases).
 
 The `codex/filter-character` branch is an unreleased filter-character
 candidate. It corrects the internal PWM/stepped-CV source, resonance ping
-response, and progressive `Input drive` behavior while retaining the frozen
+response, and level-matched transparent `Input drive` behavior while retaining the frozen
 `ThBu` identity and all 50 positional parameters. LP, BP, and HP remain
 DC-coupled; LP can carry slow or steady offsets by design. This candidate must
 pass owner listening and processor-load acceptance on the physical module
@@ -65,8 +65,9 @@ git submodule update --init --recursive
 make verify
 ```
 
-`make verify` runs the complete host/sanitizer suite, cross-compiles
-`plugins/Burl.o`, checks its unresolved firmware/runtime symbols, and reports
+`make verify` runs the complete host/sanitizer suite, deterministic theoretical
+audio checks, and the five-rate 16x filter oracle; cross-compiles
+`plugins/Burl.o`; checks its unresolved firmware/runtime symbols; and reports
 its section sizes. With a connected module, `make push` transfers the object
 using NT Push. Generated objects remain ignored by Git.
 
@@ -91,10 +92,10 @@ The test suite currently verifies:
 - the curved Q 0.5..20 resonance mapping, 250 Hz ping tails, silence stability,
   DC-coupled LP/BP/HP behavior, high-resonance harmonic character, and bounded
   oversampled output limiting;
-- the exact internal `PWM + 0.10 * previous stepped CV` filter source against
-  an external reference render;
+- the V1 resistor-network PWM/previous-stepped-CV forcing against a
+  level-matched external reference render;
 - the actual NT `Input drive` parameter mapping from 0.25x through 4x,
-  transparent low-level gain, and progressive pre-filter saturation;
+  transparent nominal-level gain, and out-of-range input protection;
 - replacement (not addition) of both oscillator triangle normals and the
   oscillator-2 clock normal when their external routes are selected; and
 - API v13 factory metadata, parameter/page layout, all nine `None`-safe input
@@ -126,6 +127,10 @@ contract is recorded in the
 [filter-character verification](docs/FILTER_CHARACTER.md). Native build and
 live-device results are recorded in
 [the hardware verification](docs/NATIVE_BUILD_AND_HARDWARE.md).
+The primary-source boundary and circuit derivation are recorded in
+[the filter research](docs/FILTER_REFERENCE_RESEARCH.md), and the matched WAVs,
+static diagnosis, and high-rate oracle are recorded in
+[the theoretical-audio verification](docs/THEORETICAL_AUDIO_VERIFICATION.md).
 
 ## disting NT API dependency
 

@@ -9,7 +9,7 @@ namespace burl {
 namespace {
 
 const float kPi = 3.14159265358979323846f;
-const float kCharacterSkewOctaves = 0.5f;
+const float kCharacterSkewOctavesPerVolt = 0.5f;
 const float kResonanceInputCompensation = 0.25f;
 const unsigned int kResonanceTableSegments = 64u;
 
@@ -142,14 +142,15 @@ StateVariableFilter::Frame StateVariableFilter::process(
         : 48000.0f;
     const float boundedResonance = clamp(resonance, 0.0f, 1.0f);
     const float resonanceSquared = boundedResonance * boundedResonance;
+    const float damping = resonanceDamping(boundedResonance);
 
     const float inputGain = 1.0f
         - kResonanceInputCompensation * resonanceSquared;
     const float conditionedInput = softBound(input * inputGain, 10.0f, 12.0f);
 
-    const float poleFeedback = clamp(previousBand_ / 5.0f, -1.0f, 1.0f);
-    const float skewOctaves = kCharacterSkewOctaves
-        * resonanceSquared * poleFeedback;
+    // R39 is a fixed first-pole-to-frequency-control path. Its character
+    // naturally grows with the band-pass amplitude as resonance rises.
+    const float skewOctaves = kCharacterSkewOctavesPerVolt * previousBand_;
     const float maximumCutoff = boundedSampleRate * 0.45f;
     const float baseCutoff = clamp(
         std::isfinite(baseCutoffHz) ? baseCutoffHz : 1.0f,
@@ -159,7 +160,6 @@ StateVariableFilter::Frame StateVariableFilter::process(
         1.0f, maximumCutoff);
 
     const float g = std::tan(kPi * cutoff / boundedSampleRate);
-    const float damping = resonanceDamping(boundedResonance);
     const float a1 = 1.0f / (1.0f + g * (g + damping));
     const float a2 = g * a1;
     const float a3 = g * a2;

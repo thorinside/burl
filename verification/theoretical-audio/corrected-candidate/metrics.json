@@ -1,0 +1,67 @@
+[
+  {
+    "click_count": 0,
+    "click_threshold": 0.02,
+    "file": "default_normal_bp.wav",
+    "high_band_db": -52.47678941288446,
+    "limiter_fraction": 0.0,
+    "max_delta": 0.001556396484375,
+    "median_delta": 0.000213623046875,
+    "peak_dbfs": -28.864000746924063,
+    "rms_dbfs": -40.57450878577527,
+    "sample_rate": 48000,
+    "spectral_flatness": 9.894996408990924e-06
+  },
+  {
+    "click_count": 40,
+    "click_threshold": 0.02,
+    "file": "default_normal_hp.wav",
+    "high_band_db": -23.57808450350238,
+    "limiter_fraction": 0.0,
+    "max_delta": 0.02301025390625,
+    "median_delta": 0.000213623046875,
+    "peak_dbfs": -26.7698190874562,
+    "rms_dbfs": -40.343714411283145,
+    "sample_rate": 48000,
+    "spectral_flatness": 0.00580967753858399
+  },
+  {
+    "click_count": 0,
+    "click_threshold": 0.02,
+    "file": "default_normal_lp.wav",
+    "high_band_db": -66.10457368189414,
+    "limiter_fraction": 0.0,
+    "max_delta": 0.0013427734375,
+    "median_delta": 0.000213623046875,
+    "peak_dbfs": -25.70002027162888,
+    "rms_dbfs": -35.09824051630841,
+    "sample_rate": 48000,
+    "spectral_flatness": 6.07481334184944e-07
+  },
+  {
+    "click_count": 99,
+    "click_threshold": 0.02,
+    "file": "ping_res100_bp_audition.wav",
+    "high_band_db": -31.37034555987009,
+    "limiter_fraction": 0.0,
+    "max_delta": 0.400543212890625,
+    "median_delta": 0.0,
+    "peak_dbfs": -1.9383327973301165,
+    "rms_dbfs": -26.31441586569643,
+    "sample_rate": 48000,
+    "spectral_flatness": 0.0014222775561355213
+  },
+  {
+    "click_count": 34,
+    "click_threshold": 0.02,
+    "file": "ping_res62_bp_audition.wav",
+    "high_band_db": -24.611928616377657,
+    "limiter_fraction": 0.0,
+    "max_delta": 0.40179443359375,
+    "median_delta": 0.0,
+    "peak_dbfs": -1.9383327973301165,
+    "rms_dbfs": -32.37190141713508,
+    "sample_rate": 48000,
+    "spectral_flatness": 0.006683280725447969
+  }
+]

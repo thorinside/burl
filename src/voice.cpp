@@ -6,6 +6,19 @@
 #include <cmath>
 
 namespace burl {
+namespace {
+
+// V1 schematic forcing at the high-pass summer is -0.01367*PWM
+// -0.04021*RUNCV. The digital outputs are +/-5 V rather than the documented
+// native +/-8 V PWM and approximately +/-5.5 V RUNCV, so the coefficients
+// include those source-range conversions. Overall polarity is immaterial to
+// the filter response and follows Burl's existing output convention.
+const float kV1PwmForcingGain = 0.021872f;
+const float kV1SteppedCvForcingGain = 0.044231f;
+const float kV1ExternalAudioForcingGain =
+    kV1PwmForcingGain + kV1SteppedCvForcingGain;
+
+} // namespace
 
 VoiceParameters::VoiceParameters()
     : oscillator1Hz(110.0f),
@@ -318,14 +331,23 @@ VoiceOutputs Voice::processInternal(const VoiceInputs& inputs,
     const float internalPulse = oscillator2_.direction > 0.0f ? 5.0f : -5.0f;
 
     const float pwm = triangle2 > triangle1 ? 5.0f : -5.0f;
-    const float internalAudio = pwm + 0.10f * previousSteppedCv;
+    const float normalizedInternalAudio =
+        (kV1PwmForcingGain * pwm
+         + kV1SteppedCvForcingGain * previousSteppedCv)
+        / kV1ExternalAudioForcingGain;
     const float inputMix = clamp(
         parameters_.externalInputMix
             + parameters_.mixCvAmount
                 * (finiteClamp(inputs.mixCv, 10.0f) / 5.0f),
         0.0f, 1.0f);
-    const float filterInput = internalAudio * (1.0f - inputMix)
+    // Crossfade nominal +/-5 V sources before applying the V1 input-network
+    // forcing. This keeps Input mix level matched instead of making the
+    // external endpoint roughly fifteen times hotter than the internal one.
+    const float normalizedFilterInput =
+        normalizedInternalAudio * (1.0f - inputMix)
         + finiteClamp(inputs.filterAudio, 12.0f) * inputMix;
+    const float filterInput = normalizedFilterInput
+        * kV1ExternalAudioForcingGain;
     const float drivenFilterInput = filterInput
         * clamp(parameters_.inputDrive, 0.25f, 4.0f);
     const float cutoffOctaves = clamp(

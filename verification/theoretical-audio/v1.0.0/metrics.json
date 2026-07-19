@@ -1,0 +1,41 @@
+[
+  {
+    "click_count": 0,
+    "click_threshold": 0.02,
+    "file": "default_normal_bp.wav",
+    "high_band_db": -75.85246449374077,
+    "limiter_fraction": 0.0,
+    "max_delta": 0.00384521484375,
+    "median_delta": 0.000244140625,
+    "peak_dbfs": -18.812174797926666,
+    "rms_dbfs": -25.98074527376166,
+    "sample_rate": 48000,
+    "spectral_flatness": 9.79868198099002e-08
+  },
+  {
+    "click_count": 0,
+    "click_threshold": 0.02,
+    "file": "default_normal_hp.wav",
+    "high_band_db": -46.94057990821469,
+    "limiter_fraction": 0.0,
+    "max_delta": 0.0054931640625,
+    "median_delta": 0.000213623046875,
+    "peak_dbfs": -20.708859840051346,
+    "rms_dbfs": -33.72361413134024,
+    "sample_rate": 48000,
+    "spectral_flatness": 2.492247318667673e-05
+  },
+  {
+    "click_count": 0,
+    "click_threshold": 0.028228759765625,
+    "file": "default_normal_lp.wav",
+    "high_band_db": -88.01814196859809,
+    "limiter_fraction": 0.0,
+    "max_delta": 0.004791259765625,
+    "median_delta": 0.001129150390625,
+    "peak_dbfs": -6.032801806364332,
+    "rms_dbfs": -13.493590883942744,
+    "sample_rate": 48000,
+    "spectral_flatness": 4.538546241372028e-09
+  }
+]
