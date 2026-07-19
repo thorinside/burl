@@ -93,10 +93,12 @@ and 96 kHz), it:
 
 The oracle includes the candidate's analytic Q curve, quadratic input
 compensation, and fixed 0.5-octave-per-volt first-pole feedback. It deliberately
-compares the unnormalized core; the separate actual-Voice render gates final
-output normalization and limiter order. It is therefore a numerical oracle for
-the candidate equations, not independent proof that every one of those
-equations is the unique analog-circuit solution.
+compares the unnormalized core and omits the production input soft bound and
+finite state clamps because the retained stimuli stay inside their linear
+operating range. The separate actual-Voice render gates final output
+normalization, protection, and limiter order. It is therefore a numerical
+convergence oracle for the candidate equations, not independent proof that
+every one of those equations is the unique analog-circuit solution.
 
 `scripts/compare_filter_reference.py` compares Eco, Normal, and High production
 renders with the oracle by in-band magnitude-spectrum residual and high-band

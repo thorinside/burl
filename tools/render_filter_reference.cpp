@@ -27,6 +27,11 @@ struct Frame {
     double highPass;
 };
 
+// This is a convergence oracle for Burl's selected filter equations, not an
+// independent circuit model. It intentionally repeats the character and input
+// compensation curves while using double precision and a much higher rate.
+// Production's input soft bound and finite state clamps are omitted because
+// the retained reference stimuli remain inside their linear operating range.
 class DoubleReferenceFilter {
 public:
     DoubleReferenceFilter()

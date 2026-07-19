@@ -119,6 +119,11 @@ public:
     void setSampleRate(float newSampleRate);
     float sampleRate() const;
 
+    /**
+     * Apply host-rate controls without resetting running DSP state.
+     * Non-finite floating controls remain bounded during processing, and the
+     * voice resumes normally when finite controls are restored.
+     */
     void setParameters(const VoiceParameters& newParameters);
     const VoiceParameters& parameters() const;
 

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Prevent non-finite public DSP parameters from poisoning oscillator state or
+  reaching undefined resonance-table index conversion, with sanitizer-backed
+  recovery coverage for all 16 floating voice parameters.
+- Resolve output bus pointers and Add/Replace modes once per host block instead
+  of repeating the same routing work for every sample.
+- Clarify the filter character's pre-normalization voltage domain and the
+  convergence-only scope and linear-range assumptions of the numerical oracle.
+
 ## 1.0.1 - 2026-07-19
 
 - Extract the multimode state-variable filter into a directly tested,

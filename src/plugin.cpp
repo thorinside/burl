@@ -500,6 +500,17 @@ void step(_NT_algorithm* self, float* busFrames, int numFramesBy4) {
                                  numFrames);
     }
 
+    float* outputDestinations[arrayCount(kOutputParameters)];
+    bool outputReplaces[arrayCount(kOutputParameters)];
+    for (size_t index = 0; index < arrayCount(kOutputParameters); ++index) {
+        const int parameter = kOutputParameters[index];
+        const int bus = algorithm->v[parameter];
+        outputDestinations[index] = bus > 0 && bus <= kNT_lastBus
+            ? busFrames + (bus - 1) * numFrames
+            : nullptr;
+        outputReplaces[index] = algorithm->v[parameter + 1] != 0;
+    }
+
     for (int frame = 0; frame < numFrames; ++frame) {
         burl::VoiceInputs voiceInputs;
         voiceInputs.oscillator1Cv = inputs[0] != nullptr ? inputs[0][frame] : 0.0f;
@@ -521,13 +532,10 @@ void step(_NT_algorithm* self, float* busFrames, int numFramesBy4) {
 
         for (size_t outputIndex = 0;
              outputIndex < arrayCount(kOutputParameters); ++outputIndex) {
-            const int parameter = kOutputParameters[outputIndex];
-            const int bus = algorithm->v[parameter];
-            if (bus <= 0 || bus > kNT_lastBus)
+            float* destination = outputDestinations[outputIndex];
+            if (destination == nullptr)
                 continue;
-            float* destination = busFrames + (bus - 1) * numFrames;
-            const bool replace = algorithm->v[parameter + 1] != 0;
-            destination[frame] = replace
+            destination[frame] = outputReplaces[outputIndex]
                 ? values[outputIndex]
                 : destination[frame] + values[outputIndex];
         }

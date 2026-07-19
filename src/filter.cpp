@@ -13,6 +13,15 @@ const float kCharacterSkewOctavesPerVolt = 0.5f;
 const float kResonanceInputCompensation = 0.25f;
 const unsigned int kResonanceTableSegments = 64u;
 
+float normalizedResonance(float resonance) {
+    if (!std::isfinite(resonance)) {
+        // Preserve endpoint saturation for infinities and choose the safely
+        // damped minimum-resonance endpoint for NaN.
+        return resonance > 0.0f ? 1.0f : 0.0f;
+    }
+    return resonance < 0.0f ? 0.0f : (resonance > 1.0f ? 1.0f : resonance);
+}
+
 // Samples of 1/Q = 2 * 40^-resonance. Linear interpolation keeps audio-rate
 // resonance CV inexpensive while retaining the specified exponential curve.
 const float kResonanceDampingTable[kResonanceTableSegments + 1u] = {
@@ -120,7 +129,7 @@ float StateVariableFilter::softBound(float value, float knee, float limit) {
 }
 
 float StateVariableFilter::resonanceDamping(float resonance) {
-    const float bounded = clamp(resonance, 0.0f, 1.0f);
+    const float bounded = normalizedResonance(resonance);
     const float tablePosition = bounded
         * static_cast<float>(kResonanceTableSegments);
     const unsigned int index = static_cast<unsigned int>(tablePosition);
@@ -140,7 +149,7 @@ StateVariableFilter::Frame StateVariableFilter::process(
             && sampleRate > 0.0f
         ? sampleRate
         : 48000.0f;
-    const float boundedResonance = clamp(resonance, 0.0f, 1.0f);
+    const float boundedResonance = normalizedResonance(resonance);
     const float resonanceSquared = boundedResonance * boundedResonance;
     const float damping = resonanceDamping(boundedResonance);
 

@@ -48,13 +48,17 @@ represented by the previous first-pole state and added to the cutoff modulation
 before the existing cutoff calculation:
 
 ```text
-skew octaves = 0.5 * previous band volts
+skew octaves = 0.5 * previous core band-pass volts
 ```
 
-The path is neither resonance-gated nor normalized/clamped. Its audible depth
-grows naturally as the first-pole amplitude grows with resonance. That
-asymmetric frequency movement supplies controlled even and odd harmonic
-content without adding another oscillator or a separate character control.
+"Core" means the pre-normalization filter-state domain. The documented default
+3.60 V BP peak is post-normalization and corresponds to about 0.36 V in this
+feedback path, or about 0.18 octave of skew. The fixed 10x Eurorack output gain
+deliberately does not participate. The path is neither resonance-gated nor
+normalized/clamped. Its audible depth grows naturally as the first-pole
+amplitude grows with resonance. That asymmetric frequency movement supplies
+controlled even and odd harmonic content without adding another oscillator or
+a separate character control.
 
 At 96 kHz, the retained 250 Hz impulse fixture measures the final sample above
 -60 dB at approximately 42.5 ms for 62% resonance and 174.3 ms for maximum

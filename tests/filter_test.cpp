@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 namespace {
@@ -49,6 +50,32 @@ void testCurvedResonanceMapping() {
                "resonance Q lookup must remain finite and monotonic");
         previousQ = q;
     }
+}
+
+void testNonFiniteResonanceIsSafe() {
+    const float infinity = std::numeric_limits<float>::infinity();
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    expectNear(burl::StateVariableFilter::resonanceDamping(nan), 2.0f,
+               0.0f, "NaN resonance must fall back to minimum resonance");
+    expectNear(burl::StateVariableFilter::resonanceDamping(infinity), 0.05f,
+               0.0f, "positive infinity resonance must saturate at maximum");
+    expectNear(burl::StateVariableFilter::resonanceDamping(-infinity), 2.0f,
+               0.0f, "negative infinity resonance must saturate at minimum");
+
+    burl::StateVariableFilter filter;
+    const burl::StateVariableFilter::Frame invalid = filter.process(
+        1.0f, 250.0f, 0.0f, nan, kSampleRate, false);
+    expect(std::isfinite(invalid.lowPass)
+               && std::isfinite(invalid.bandPass)
+               && std::isfinite(invalid.highPass),
+           "NaN resonance must not produce non-finite filter output");
+
+    const burl::StateVariableFilter::Frame recovered = filter.process(
+        1.0f, 250.0f, 0.0f, 0.62f, kSampleRate, false);
+    expect(std::isfinite(recovered.lowPass)
+               && std::isfinite(recovered.bandPass)
+               && std::isfinite(recovered.highPass),
+           "filter must recover after a non-finite resonance value");
 }
 
 float impulseDecayMilliseconds(float resonance) {
@@ -317,6 +344,7 @@ void testHighResonanceAllHarmonicCharacter() {
 
 int main() {
     testCurvedResonanceMapping();
+    testNonFiniteResonanceIsSafe();
     testPingDecayAndNoSelfOscillation();
     testDcCoupledOutputs();
     testTransparentInputProtection();

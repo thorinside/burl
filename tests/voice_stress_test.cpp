@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <stdint.h>
 
 namespace {
@@ -195,16 +196,120 @@ int stressAllSupportedRatesAndQualities() {
     return failures;
 }
 
+struct FloatParameterCase {
+    const char* name;
+    float burl::VoiceParameters::*member;
+};
+
+bool validateNonFiniteParameter(const FloatParameterCase& parameterCase,
+                                float invalidValue,
+                                burl::QualityMode quality,
+                                unsigned int caseIndex) {
+    const unsigned int sampleRate = 48000u;
+    burl::Voice voice(static_cast<float>(sampleRate), 0x5du);
+    const burl::VoiceParameters valid = parametersFor(
+        static_cast<float>(sampleRate), quality, 7u);
+    voice.setParameters(valid);
+    voice.reset();
+    voice.process(inputsAt(caseIndex));
+
+    burl::VoiceParameters invalid = valid;
+    invalid.*(parameterCase.member) = invalidValue;
+    voice.setParameters(invalid);
+    const burl::VoiceOutputs invalidOutputs = voice.process(
+        inputsAt(caseIndex + 1u));
+    const burl::VoiceStatus invalidStatus = voice.status();
+    if (!validateFrame(invalidOutputs, invalidStatus, sampleRate, quality,
+                       0x5du, caseIndex + 1u)) {
+        std::cerr << "FAIL: non-finite " << parameterCase.name
+                  << " escaped voice conditioning\n";
+        return false;
+    }
+
+    voice.setParameters(valid);
+    const burl::VoiceOutputs recoveredOutputs = voice.process(
+        inputsAt(caseIndex + 2u));
+    const burl::VoiceStatus recoveredStatus = voice.status();
+    if (!validateFrame(recoveredOutputs, recoveredStatus, sampleRate, quality,
+                       0x5du, caseIndex + 2u)) {
+        std::cerr << "FAIL: voice did not recover after non-finite "
+                  << parameterCase.name << '\n';
+        return false;
+    }
+    if (recoveredStatus.oscillator1Triangle
+            == invalidStatus.oscillator1Triangle
+        && recoveredStatus.oscillator2Triangle
+            == invalidStatus.oscillator2Triangle) {
+        std::cerr << "FAIL: oscillators did not resume after non-finite "
+                  << parameterCase.name << '\n';
+        return false;
+    }
+    return true;
+}
+
+int stressNonFiniteParameters() {
+    const FloatParameterCase parameters[] = {
+        {"oscillator1Hz", &burl::VoiceParameters::oscillator1Hz},
+        {"oscillator2Hz", &burl::VoiceParameters::oscillator2Hz},
+        {"oscillator1CrossModulation",
+         &burl::VoiceParameters::oscillator1CrossModulation},
+        {"oscillator2CrossModulation",
+         &burl::VoiceParameters::oscillator2CrossModulation},
+        {"oscillator1Feedback", &burl::VoiceParameters::oscillator1Feedback},
+        {"oscillator2Feedback", &burl::VoiceParameters::oscillator2Feedback},
+        {"change", &burl::VoiceParameters::change},
+        {"filterCutoffHz", &burl::VoiceParameters::filterCutoffHz},
+        {"filterResonance", &burl::VoiceParameters::filterResonance},
+        {"filterFeedback", &burl::VoiceParameters::filterFeedback},
+        {"externalCutoffModulation",
+         &burl::VoiceParameters::externalCutoffModulation},
+        {"externalInputMix", &burl::VoiceParameters::externalInputMix},
+        {"changeCvAmount", &burl::VoiceParameters::changeCvAmount},
+        {"resonanceCvAmount", &burl::VoiceParameters::resonanceCvAmount},
+        {"mixCvAmount", &burl::VoiceParameters::mixCvAmount},
+        {"inputDrive", &burl::VoiceParameters::inputDrive}
+    };
+    const float invalidValues[] = {
+        std::numeric_limits<float>::quiet_NaN(),
+        std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity()
+    };
+    const burl::QualityMode qualities[] = {
+        burl::QualityEco, burl::QualityNormal, burl::QualityHigh
+    };
+
+    int failures = 0;
+    unsigned int caseIndex = 0u;
+    for (unsigned int quality = 0u; quality < 3u; ++quality) {
+        for (unsigned int parameter = 0u;
+             parameter < sizeof(parameters) / sizeof(parameters[0]);
+             ++parameter) {
+            for (unsigned int value = 0u;
+                 value < sizeof(invalidValues) / sizeof(invalidValues[0]);
+                 ++value) {
+                if (!validateNonFiniteParameter(parameters[parameter],
+                                                invalidValues[value],
+                                                qualities[quality], caseIndex)) {
+                    ++failures;
+                }
+                caseIndex += 3u;
+            }
+        }
+    }
+    return failures;
+}
+
 } // namespace
 
 int main() {
-    const int failures = stressAllSupportedRatesAndQualities();
+    const int failures = stressAllSupportedRatesAndQualities()
+        + stressNonFiniteParameters();
     if (failures != 0) {
         std::cerr << failures << " voice stress context(s) failed\n";
         return EXIT_FAILURE;
     }
 
-    std::cout << "All voice stress tests passed (30 contexts, 983040 host frames, "
-                 "7864320 checked outputs)\n";
+    std::cout << "All voice stress tests passed (30 finite contexts plus 144 "
+                 "non-finite parameter cases)\n";
     return EXIT_SUCCESS;
 }

@@ -22,6 +22,13 @@ reconstructing the voice. The phases cover:
   and
 - all eight selectable register tap positions.
 
+A second matrix injects NaN, positive infinity, and negative infinity into
+each of the 16 floating `VoiceParameters` fields in Eco, Normal, and High
+quality. These 144 cases require every output and oscillator status value to
+remain finite and bounded during the invalid value and after restoring the
+valid parameters. This includes the resonance lookup's float-to-table-index
+boundary and recovery from invalid oscillator frequency or modulation.
+
 The deterministic input streams repeatedly reach the conditioned Eurorack
 boundaries: +/-10 V oscillator and cutoff CV, +/-12 V filter audio, and a
 Schmitt-clock sequence spanning -5 V, 0 V, and +5 V.
@@ -44,9 +51,10 @@ limiter at the common internal quality rate before final finite bounds.
 `make stress-sanitize` compiles and runs the same complete stress matrix with
 AddressSanitizer and UndefinedBehaviorSanitizer. This retained instrumentation
 checks the exercised paths for out-of-bounds and use-after-lifetime memory
-accesses and undefined behavior in addition to the explicit numerical
-assertions. Apple Clang's AddressSanitizer does not support leak detection on
-this platform, so that unrelated option is disabled.
+accesses, invalid float-to-integer conversions, and undefined behavior in
+addition to the explicit numerical assertions. Apple Clang's AddressSanitizer
+does not support leak detection on this platform, so that unrelated option is
+disabled.
 
 Run the normal and instrumented verification with:
 

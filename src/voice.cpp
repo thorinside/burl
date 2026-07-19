@@ -217,9 +217,23 @@ unsigned int Voice::qualityFactor(QualityMode quality) {
 
 float Voice::advanceOscillator(OscillatorState& oscillator, float frequency,
                                float internalSampleRate) {
-    const float boundedFrequency = clamp(frequency, 0.001f,
-                                         internalSampleRate * 0.45f);
-    const float distance = 4.0f * boundedFrequency / internalSampleRate;
+    if (!std::isfinite(oscillator.triangle)
+        || !std::isfinite(oscillator.direction)) {
+        oscillator.triangle = 0.0f;
+        oscillator.direction = 1.0f;
+    }
+
+    const float boundedSampleRate = std::isfinite(internalSampleRate)
+            && internalSampleRate > 0.0f
+        ? internalSampleRate
+        : 48000.0f;
+    const float maximumFrequency = boundedSampleRate * 0.45f;
+    const float finiteFrequency = std::isfinite(frequency)
+        ? frequency
+        : (frequency > 0.0f ? maximumFrequency : 0.001f);
+    const float boundedFrequency = clamp(finiteFrequency, 0.001f,
+                                         maximumFrequency);
+    const float distance = 4.0f * boundedFrequency / boundedSampleRate;
     oscillator.triangle += oscillator.direction * distance;
 
     while (oscillator.triangle > 1.0f || oscillator.triangle < -1.0f) {

@@ -32,7 +32,12 @@ public:
                   float resonance, float sampleRate, bool softLimit,
                   float outputGain = 1.0f);
 
-    /** Return 1/Q for the curved Q = 0.5 * 40^resonance mapping. */
+    /**
+     * Return 1/Q for the curved Q = 0.5 * 40^resonance mapping.
+     *
+     * Finite values saturate to [0, 1], infinities saturate to their matching
+     * endpoint, and NaN selects the safely damped minimum-resonance endpoint.
+     */
     static float resonanceDamping(float resonance);
 
 private:
