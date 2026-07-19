@@ -77,12 +77,20 @@ No public source or binary release may occur until every item below is true:
 
 ## Version 1.0.0 release record
 
-- **Release source commit:**
+- **Public release tag:** `v1.0.0`, resolving to source commit
+  `cfafd2caba73071876b920ee92f7144965c7f3c9`.
+- **Hardware-validation baseline:**
   `7def2805849cd98dc77b7ee6d860e054db54b1b5`, the last implementation and
-  verified-object change before this documentation-only release finalization.
-- **Release object:** `plugins/Burl.o`, SHA-256
+  verified-object change before the release documentation and automation.
+- **Hardware-validated object:** `plugins/Burl.o`, SHA-256
   `92cbfbb2fff6f9244060057dc5e36ecd73b04717ab714810cd64fac04967c24b`.
-- **Toolchain:** `arm-none-eabi-g++` 15.2.1 20251203.
+- **Hardware-validation toolchain:** `arm-none-eabi-g++` 15.2.1 20251203.
+- **Public GitHub build:** Actions run
+  `29668621762` on Ubuntu 24.04 with `arm-none-eabi-g++` 13.2.1 20231009.
+  The hosted `Burl.o` SHA-256 is
+  `e99e94514f463d3d5e51b843187fad216485a440101caf9d57886794a519d5a0`;
+  the hosted `Burl-plugin.zip` SHA-256 is
+  `457fc9108a182f3e834ae930341468f000ca51f0e30706cbc6a8dceba5e9236a`.
 - **Target and flags:** C++11, Cortex-M7, Thumb, FPv5-D16 hard float,
   position-independent code, function/data sections, no RTTI, exceptions, or
   unwind tables, and a relocatable no-standard-library link. The authoritative

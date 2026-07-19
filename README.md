@@ -29,7 +29,12 @@ on [GitHub Releases](https://github.com/thorinside/burl/releases).
 - **License:** MIT
 - **Repository tags:** `disting-nt`, `eurorack`, `synthesizer`, `audio-plugin`,
   `dsp`, `chaotic-synthesizer`, `feedback-shift-register`, `cpp`
-- **Release source:** implementation and verified object baseline
+- **Version 1.0.0 tag:** `cfafd2caba73071876b920ee92f7144965c7f3c9`
+- **Hosted object SHA-256:**
+  `e99e94514f463d3d5e51b843187fad216485a440101caf9d57886794a519d5a0`
+- **Hosted archive SHA-256:**
+  `457fc9108a182f3e834ae930341468f000ca51f0e30706cbc6a8dceba5e9236a`
+- **Hardware-validation baseline:**
   `7def2805849cd98dc77b7ee6d860e054db54b1b5`
 
 ## Install
