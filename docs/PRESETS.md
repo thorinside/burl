@@ -18,6 +18,11 @@ Released parameters must not be reordered or renamed. Any future compatible
 parameter additions must preserve all existing indices and require a separate
 compatibility review.
 
+All nine input routes and all eight output routes accept the host value `0`
+(`None`). Output defaults remain Outputs 1-8, so existing preset values and the
+positional ABI are unchanged; the wider minimum only makes disconnected output
+routing representable.
+
 ## Seeded restoration behavior
 
 `Seed` is an ordinary host-managed parameter. When the host reports that it

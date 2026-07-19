@@ -25,7 +25,9 @@ The `codex/filter-character` branch is an unreleased filter-character
 candidate. It corrects the internal PWM/stepped-CV source, resonance ping
 response, and level-matched transparent `Input drive` behavior while retaining the frozen
 `ThBu` identity and all 50 positional parameters. LP, BP, and HP remain
-DC-coupled; LP can carry slow or steady offsets by design. This candidate must
+DC-coupled; LP can carry slow or steady offsets by design. Every input and
+output route supports `None`, while the eight output defaults remain hardware
+Outputs 1-8. This candidate must
 pass owner listening and processor-load acceptance on the physical module
 before a follow-up release is cut. See the
 [filter verification record](docs/FILTER_CHARACTER.md) and
@@ -99,7 +101,8 @@ The test suite currently verifies:
 - replacement (not addition) of both oscillator triangle normals and the
   oscillator-2 clock normal when their external routes are selected; and
 - API v13 factory metadata, parameter/page layout, all nine `None`-safe input
-  routes, 64-bus output addressing, and Add/Replace output mixing;
+  routes, all eight `None`-safe output routes, 64-bus output addressing, and
+  Add/Replace output mixing;
 - the frozen `ThBu` factory/positional parameter ABI and bit-exact Seeded
   restoration after a simulated host parameter round-trip;
 - allocation-free, state-preserving runtime Quality changes across the exact

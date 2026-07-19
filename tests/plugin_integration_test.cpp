@@ -260,7 +260,7 @@ void testPluginIntegration() {
         const int parameter = findParameter(
             algorithm, requirements.numParameters, outputNames[index]);
         assert(parameter >= 0);
-        assert(algorithm->parameters[parameter].min == 1);
+        assert(algorithm->parameters[parameter].min == 0);
         assert(algorithm->parameters[parameter].max == kNT_lastBus);
         assert(algorithm->parameters[parameter].def
                == static_cast<int16_t>(13 + index));
@@ -280,6 +280,30 @@ void testPluginIntegration() {
         }
     }
     assert(anyNonZero);
+
+    // Every output route must accept None. With all eight outputs disconnected,
+    // Burl must leave all 64 host buses exactly as it found them.
+    for (size_t index = 0;
+         index < sizeof(outputNames) / sizeof(outputNames[0]); ++index) {
+        const int parameter = findParameter(
+            algorithm, requirements.numParameters, outputNames[index]);
+        values[parameter] = 0;
+        factory->parameterChanged(algorithm, parameter);
+    }
+    for (size_t index = 0; index < buses.size(); ++index)
+        buses[index] = 0.125f * static_cast<float>((index % 17u) + 1u);
+    const std::vector<float> disconnectedBuses = buses;
+    factory->step(algorithm, buses.data(), numFrames / 4);
+    assert(buses == disconnectedBuses);
+
+    // Restore the existing defaults for the remaining integration checks.
+    for (size_t index = 0;
+         index < sizeof(outputNames) / sizeof(outputNames[0]); ++index) {
+        const int parameter = findParameter(
+            algorithm, requirements.numParameters, outputNames[index]);
+        values[parameter] = static_cast<int16_t>(13 + index);
+        factory->parameterChanged(algorithm, parameter);
+    }
 
     // Firmware block sizes are expressed in groups of four frames. Exercise
     // the supported range without assuming the default 24-frame setting.

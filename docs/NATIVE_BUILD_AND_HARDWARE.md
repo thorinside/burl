@@ -26,6 +26,10 @@ The unresolved symbols reported by `make check` are limited to disting NT host
 services, position-independent linkage, memory intrinsics, and firmware math
 runtime functions.
 
+The unreleased filter-character candidate is 8,721 bytes by section total and
+has SHA-256
+`67f632f47521e38aa38939f7aa0ea9fd1a32ba48f9f527d541539efb13b309d0`.
+
 ## API and host integration checks
 
 The retained plug-in integration test verifies:
@@ -33,8 +37,8 @@ The retained plug-in integration test verifies:
 - `pluginEntry()` reports API v13 and one `ThBu` / `Burl` factory;
 - the instrument and filter/EQ tags, 50 parameters, and 11 pages;
 - all nine optional inputs default to `None` and cannot index before bus 1;
-- all eight outputs default to hardware Outputs 1-8, can address all 64 buses,
-  and implement independent Add and Replace mixing;
+- all eight outputs allow `None`, default to hardware Outputs 1-8, can address
+  all 64 buses, and implement independent Add and Replace mixing;
 - processing uses `numFramesBy4 * 4` rather than a fixed frame count;
 - construction uses `NT_globals.sampleRate`; and
 - draw and custom parameter strings execute under the host harness.

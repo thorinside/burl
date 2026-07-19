@@ -13,6 +13,8 @@
   source-scaled +/-5 V operation, with soft input protection kept out of range.
 - Keep LP, BP, and HP DC-coupled; LP offsets and sub-audio movement remain
   available by design.
+- Allow `None` (`0`) on all eight output routes while preserving their existing
+  Outputs 1-8 defaults, positions, and Add/Replace modes.
 - Add direct and plug-in-level regression coverage for ping decay, silence
   stability, DC response, source routing, drive, harmonics, reset,
   determinism, and bounded output.
