@@ -7,17 +7,30 @@ a triangle comparator, and a resonant multimode filter.
 
 ## Project status
 
-Burl is in active development. The repository contains a loadable disting NT
-C++ API v13 plug-in, factory GUID `ThBu`, plus its host-tested integrated DSP
-voice. The plug-in exposes 50 parameters on 11 standard pages, nine optional
-input routes, and eight independently routed Add/Replace outputs.
+Burl 1.0.0 is a release-ready disting NT C++ API v13 plug-in with factory GUID
+`ThBu` and a host-tested integrated DSP voice. The plug-in exposes 50
+parameters on 11 standard pages, nine optional input routes, and eight
+independently routed Add/Replace outputs.
 
 The relocatable Cortex-M7 object has been built, pushed, scanned, and loaded on
 disting NT firmware 1.17.0. Live hardware produced all eight default outputs;
 the retained build and bench record is in
 [the native build and hardware verification](docs/NATIVE_BUILD_AND_HARDWARE.md).
-**This development artifact is not yet approved for public distribution.** The
-remaining release gates and owner acceptance checks continue to apply.
+The product owner completed the listening, control, preset, and processor-load
+acceptance checks on the target module. The project is prepared for a free,
+open-source MIT release; publication itself is a separate owner action and has
+not been performed by this repository record.
+
+## Release metadata
+
+- **Version:** 1.0.0
+- **Author:** Neal Sanche
+- **Homepage:** <https://github.com/thorinside/burl>
+- **License:** MIT
+- **Repository tags:** `disting-nt`, `eurorack`, `synthesizer`, `audio-plugin`,
+  `dsp`, `chaotic-synthesizer`, `feedback-shift-register`, `cpp`
+- **Release source:** implementation and verified object baseline
+  `7def2805849cd98dc77b7ee6d860e054db54b1b5`
 
 ## Build and test
 
@@ -82,7 +95,11 @@ live-device results are recorded in
 ## disting NT API dependency
 
 The official `expertsleepersltd/distingNT_API` repository is included as the
-`distingNT_API` Git submodule and pinned to a reviewed commit. This keeps the
+`distingNT_API` Git submodule and pinned to
+`cd12d876dbe060859828053efab1cbc98c9df251` (`v1.15.0`, API v13). The dependency
+is MIT-licensed by Expert Sleepers Ltd and is compatible with this project's
+MIT distribution. Its retained notice is recorded in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The submodule keeps the
 firmware ABI header, examples, and native build surface available to every
 checkout without copying or reimplementing the vendor API.
 

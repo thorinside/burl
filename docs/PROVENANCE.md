@@ -16,9 +16,12 @@ requirements basis above. No source from a third-party emulation was pasted,
 copied, mechanically translated, or otherwise used while producing it. Commit
 history is the authorship record for project files.
 
-The Expert Sleepers API header will be used as a build interface when the
-native plug-in adapter is added; that dependency is not currently vendored.
-Its version and license must be recorded before distribution.
+The native plug-in adapter uses the official Expert Sleepers `distingNT_API`
+Git submodule as its build interface. It is pinned to
+`cd12d876dbe060859828053efab1cbc98c9df251` (`v1.15.0`, API v13). The dependency
+is MIT-licensed, with copyright held by Expert Sleepers Ltd; its terms are
+compatible with this project's MIT distribution and its notice is retained in
+the submodule and `THIRD_PARTY_NOTICES.md`.
 
 This record supports an **independently developed** description. It is not, by
 itself, sufficient evidence for the stronger public phrase “clean-room,” and
@@ -44,9 +47,10 @@ Review evidence and findings:
 1. The repository history begins with the reviewed baseline. It records all
    reviewed files as newly authored project files in one non-merge commit by
    the recorded repository author; there is no imported parent history.
-2. The checkout contains no submodules, vendored source, generated source,
-   tracked symbolic links, or project remote. Implementation includes are
-   limited to the project header and C++ standard-library headers.
+2. At that baseline the checkout contained no submodules, vendored source,
+   generated source, tracked symbolic links, or project remote. Implementation
+   includes were limited to the project header and C++ standard-library
+   headers.
 3. A source-reference and notice scan found no third-party source URL,
    third-party copyright notice, or copied-code attribution in the
    implementation. Historical names occur only in the approved subordinate
@@ -88,13 +92,13 @@ Review evidence and findings:
    approved Spec and the pre-existing project-owned pattern-generator API. No
    third-party emulation source was accessed, copied, or mechanically
    translated for this extension.
-2. Production includes remain limited to project headers and the C++ standard
-   library. Test includes are likewise limited to project headers and standard
-   library facilities; no vendored, generated, or externally sourced code was
-   introduced.
-3. Repository boundary checks found no remote, submodule, tracked symbolic
-   link, or external source notice. Every new C++ source and header carries the
-   project MIT SPDX and copyright notice.
+2. At that baseline production includes remained limited to project headers and
+   the C++ standard library. Test includes were likewise limited to project
+   headers and standard library facilities; no vendored, generated, or
+   externally sourced code was introduced.
+3. Repository boundary checks at that baseline found no remote, submodule,
+   tracked symbolic link, or external source notice. Every new C++ source and
+   header carried the project MIT SPDX and copyright notice.
 4. The delta expresses approved behavioural relationships directly: reflected
    triangle oscillators, internal-normal replacement, deterministic register
    clocking, triangle comparison, state-variable filtering, common quality
@@ -108,3 +112,37 @@ complete implementation through the recorded integrated-voice baseline. No
 evidence of copied or mechanically translated third-party emulation source was
 found. This extends AC-002 evidence to that baseline; later implementation
 changes must receive another delta review before release reassessment.
+
+## Native adapter and version 1 release review
+
+Review date: 2026-07-18
+
+Implementation and verified-object baseline reviewed:
+`7def2805849cd98dc77b7ee6d860e054db54b1b5`
+
+This release delta review covers the native adapter, the official API
+submodule, host integration and sanitizer tests, live-hardware evidence, preset
+compatibility, quality switching, and release branding added after the
+integrated-voice review.
+
+1. Project-owned production and test code remains independently written from
+   the approved behavioural Spec. No third-party Benjolin-emulation source was
+   added or referenced.
+2. The only third-party source dependency is the official Expert Sleepers
+   `distingNT_API` submodule pinned to
+   `cd12d876dbe060859828053efab1cbc98c9df251`. It supplies the documented host
+   ABI and examples; it is not a Benjolin implementation.
+3. The dependency's MIT License is compatible with distribution of Burl under
+   MIT. Its Expert Sleepers Ltd copyright and license terms are retained in the
+   submodule and `THIRD_PARTY_NOTICES.md`.
+4. The relocatable plug-in object has no statically linked C++ standard
+   library. Its unresolved external symbols are the documented disting NT host,
+   PIC, memory-intrinsic, and firmware math-runtime services.
+5. All project-owned C++ sources and headers retain the project MIT SPDX and
+   copyright notice. The release attribution continues to separate the scope
+   of that license from third-party names and protected expression.
+
+**Review conclusion:** the independent-development finding and dependency
+rights record cover the complete Burl 1.0.0 implementation and verified object
+at the recorded baseline. The pinned API dependency is compatible with the
+planned MIT release, and no unrecorded distributed source dependency remains.

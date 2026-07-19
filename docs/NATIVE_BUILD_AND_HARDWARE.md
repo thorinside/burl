@@ -72,8 +72,8 @@ export from the same live session recorded the active engine at 48 kHz with a
 
 These results establish that the API-v13 object scans, loads, produces live
 outputs, meets the single-High CPU ceiling, and restores host-managed values,
-routing, and a performance mapping across repeated preset loads. Subjective
-listening details, dropout observation for the documented two-Eco patch,
-display interaction, and external-clock/reset behavior remain separate owner
-acceptance checks. The retained positional-ABI, Seeded-restoration harness,
-and live preset round-trip are documented in [PRESETS.md](PRESETS.md).
+routing, and a performance mapping across repeated preset loads. The product
+owner subsequently completed the separate listening, two-Eco dropout, display,
+external-clock, and reset checks in the approved Portal acceptance forms. The
+retained positional-ABI, Seeded-restoration harness, and live preset round-trip
+are documented in [PRESETS.md](PRESETS.md).

@@ -88,6 +88,7 @@ int main() {
 
     const std::string readme = readFile("README.md");
     const std::string releaseGate = readFile("docs/RELEASE_GATE.md");
+    const std::string thirdPartyNotices = readFile("THIRD_PARTY_NOTICES.md");
     const std::string pluginSource = readFile("src/plugin.cpp");
     const std::string makefile = readFile("Makefile");
     const std::string pluginObject = readFile("plugins/Burl.o");
@@ -98,6 +99,22 @@ int main() {
                    "README release attribution");
     expectContains(normalizeWhitespace(releaseGate), expectedAttribution,
                    "release-gate attribution record");
+
+    expectContains(readme, "**Version:** 1.0.0", "release version");
+    expectContains(readme, "**Author:** Neal Sanche", "release author");
+    expectContains(readme, "https://github.com/thorinside/burl",
+                   "release homepage");
+    expectContains(readme, "`disting-nt`", "release tags");
+    expectContains(releaseGate,
+                   "7def2805849cd98dc77b7ee6d860e054db54b1b5",
+                   "release source commit");
+    expectContains(releaseGate,
+                   "cd12d876dbe060859828053efab1cbc98c9df251",
+                   "pinned API dependency");
+    expectContains(thirdPartyNotices, "Copyright (c) 2025 Expert Sleepers Ltd",
+                   "API dependency copyright");
+    expectContains(thirdPartyNotices, "MIT License",
+                   "API dependency license");
 
     const std::string normalizedGate = normalizeWhitespace(releaseGate);
     expectContains(normalizedGate, "**Public name:** Burl.",

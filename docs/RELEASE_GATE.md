@@ -6,6 +6,11 @@ project risk record, not legal advice.
 ## Recorded decisions
 
 - **Public name:** Burl.
+- **Release version:** 1.0.0.
+- **Release author:** Neal Sanche.
+- **Project homepage:** <https://github.com/thorinside/burl>.
+- **Repository tags:** `disting-nt`, `eurorack`, `synthesizer`, `audio-plugin`,
+  `dsp`, `chaotic-synthesizer`, `feedback-shift-register`, `cpp`.
 - **License:** MIT for project-original software and files expressly covered by
   the license notice.
 - **Naming review:** the existing U.S. BURL wordmark is accepted as a known,
@@ -37,15 +42,18 @@ project risk record, not legal advice.
 - **Relevant-rights review:** project-original software is MIT-licensed;
   third-party code or protected expression may not be copied; and the MIT
   License does not cover third-party names, schematics, artwork, manuals,
-  designs, or trademarks. The Expert Sleepers API header is not currently
-  vendored and its version and license must be recorded if it becomes a
-  distributed dependency.
+  designs, or trademarks. The official Expert Sleepers `distingNT_API`
+  submodule is pinned to commit
+  `cd12d876dbe060859828053efab1cbc98c9df251` (`v1.15.0`, API v13). Its MIT
+  License and Expert Sleepers Ltd copyright notice are compatible with this
+  project's MIT source and binary distribution and are retained in the
+  submodule and `THIRD_PARTY_NOTICES.md`.
 
 **Review conclusion:** the public name, attribution wording, and relevant
 third-party-rights posture required by AC-003 have been reviewed and recorded.
-This conclusion completes that decision gate but does not authorize a release:
-the remaining unchecked delivery evidence below must still be completed. No
-public source or binary distribution is performed by this review.
+This conclusion completes the decision gate. Public source or binary
+distribution remains a separate owner action and is not performed by this
+review.
 
 ## Required release attribution
 
@@ -58,14 +66,32 @@ No public source or binary release may occur until every item below is true:
 - [x] Public name and naming-risk posture are recorded.
 - [x] Required attribution and non-endorsement wording are recorded.
 - [x] Scope of the MIT License and relevant third-party rights are recorded.
-- [ ] Every distributed dependency and file has a compatible, recorded license.
+- [x] Every distributed dependency and file has a compatible, recorded license.
 - [x] The release source, plug-in UI, and binary use Burl as the primary brand
       without trademark symbols; the release README carries the required
       attribution for distribution with them.
-- [ ] The release build record identifies the compiler/toolchain version, API
+- [x] The release build record identifies the compiler/toolchain version, API
       version, required flags, and source commit.
-- [ ] Host and hardware verification required by the approved Spec is complete
+- [x] Host and hardware verification required by the approved Spec is complete
       and retained.
+
+## Version 1.0.0 release record
+
+- **Release source commit:**
+  `7def2805849cd98dc77b7ee6d860e054db54b1b5`, the last implementation and
+  verified-object change before this documentation-only release finalization.
+- **Release object:** `plugins/Burl.o`, SHA-256
+  `92cbfbb2fff6f9244060057dc5e36ecd73b04717ab714810cd64fac04967c24b`.
+- **Toolchain:** `arm-none-eabi-g++` 15.2.1 20251203.
+- **Target and flags:** C++11, Cortex-M7, Thumb, FPv5-D16 hard float,
+  position-independent code, function/data sections, no RTTI, exceptions, or
+  unwind tables, and a relocatable no-standard-library link. The authoritative
+  flags are `HARDWARE_FLAGS` and `HARDWARE_LDFLAGS` in `Makefile`.
+- **Host contract:** Expert Sleepers API v13 on disting NT firmware 1.17.0,
+  using the pinned API dependency recorded above.
+- **Verification:** the complete host, sanitizer, native-build, branding,
+  preset, hardware, CPU, and owner-listening evidence required by the approved
+  Spec has been retained.
 
 ## AC-025 branding verification
 
@@ -92,10 +118,10 @@ object properties. It is also part of `make verify`, so a missing attribution,
 legacy primary product name, trademark symbol, renamed binary, or branding
 regression fails release verification.
 
-This evidence completes AC-025's branding requirement. It does not authorize a
-public release: the unchecked dependency, build-record, and remaining host and
-hardware gates above are still mandatory.
+This evidence completes AC-025's branding requirement. Together with the
+dependency, build, host, hardware, and owner records above, the distribution
+gate is satisfied.
 
-The checked discovery decisions satisfy the decision portion of the gate. The
-unchecked delivery evidence remains mandatory; this repository is not yet
-release-ready.
+Version 1.0.0 is release-ready. No public source, binary upload, tag, remote, or
+hosted release is created by this record; publication remains an explicit owner
+action.
