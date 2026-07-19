@@ -17,9 +17,9 @@ disting NT firmware 1.17.0. Live hardware produced all eight default outputs;
 the retained build and bench record is in
 [the native build and hardware verification](docs/NATIVE_BUILD_AND_HARDWARE.md).
 The product owner completed the listening, control, preset, and processor-load
-acceptance checks on the target module. The project is prepared for a free,
-open-source MIT release. Version-tagged builds and release downloads are hosted
-on [GitHub Releases](https://github.com/thorinside/burl/releases).
+acceptance checks on the target module. The project is free, open-source MIT
+software. Version-tagged builds and release downloads are hosted on
+[GitHub Releases](https://github.com/thorinside/burl/releases).
 
 Burl 1.0.1 corrects the internal PWM/stepped-CV source, resonance ping
 response, level-matched transparent `Input drive` behavior, and final
@@ -44,6 +44,11 @@ processor-load envelope before release. See the
   `ca97c425acc9390d0ce2715c3b13ed6967061f19`
 - **Hardware-validated object SHA-256:**
   `107869f478d5c23583945ad30898dd679bc053293f6c69de338a7c34f25e4dce`
+- **Version 1.0.1 tag:** `d351fe935e29a7c0c1d12a1ca43cc2e2445797de`
+- **Version 1.0.1 hosted object SHA-256:**
+  `b4cf7203c0c2c1bce551b335445a15dc0a83539e863bf2e273d73137d1f571e1`
+- **Version 1.0.1 hosted archive SHA-256:**
+  `df165ef802fa81f1df2c9f5c58e5be26a18c6eb06819c05b42705926e2be8b1d`
 - **Version 1.0.0 tag:** `cfafd2caba73071876b920ee92f7144965c7f3c9`
 - **Version 1.0.0 hosted object SHA-256:**
   `e99e94514f463d3d5e51b843187fad216485a440101caf9d57886794a519d5a0`

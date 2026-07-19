@@ -161,7 +161,19 @@ when required.
   independent-reference WAVs and metrics are retained in
   `verification/theoretical-audio`. No physical WAV was used to tune the
   release; direct owner listening supplied the physical acceptance judgment.
+- **Public release tag:** `v1.0.1`, resolving to source commit
+  `d351fe935e29a7c0c1d12a1ca43cc2e2445797de`.
+- **Public GitHub build:** Actions run `29703223088` on Ubuntu 24.04 with
+  `arm-none-eabi-g++` 13.2.1 20231009 completed successfully. The downloaded
+  hosted `Burl.o` is 8,759 bytes by section total with SHA-256
+  `b4cf7203c0c2c1bce551b335445a15dc0a83539e863bf2e273d73137d1f571e1`;
+  the hosted `Burl-plugin.zip` SHA-256 is
+  `df165ef802fa81f1df2c9f5c58e5be26a18c6eb06819c05b42705926e2be8b1d`.
+- **Public release:** [Burl 1.0.1](https://github.com/thorinside/burl/releases/tag/v1.0.1)
+  is neither a draft nor a prerelease and is the repository's latest release.
 
-The owner authorized shipment on 2026-07-19. The public tag, hosted workflow
-run, and hosted artifact checksums are appended after the tag-triggered build
-completes.
+The owner authorized shipment on 2026-07-19. The first tag run stopped before
+packaging because the workflow lacked NumPy for the new audio verifier; no
+release or asset was created. Commit
+`d351fe935e29a7c0c1d12a1ca43cc2e2445797de` added that release dependency, and
+the replacement tag run completed the verified public release recorded above.

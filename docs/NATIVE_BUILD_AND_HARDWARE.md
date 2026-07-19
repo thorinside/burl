@@ -103,3 +103,14 @@ High remained below the module's critical range. The check restored the exact
 Normal value before release preparation. These measurements replace the 1.0.0
 numbers for the filter-character implementation; the earlier two-Eco dropout
 acceptance remains the retained multi-instance baseline.
+
+GitHub Actions run `29703223088` rebuilt the tagged release on Ubuntu 24.04
+with `arm-none-eabi-g++` 13.2.1 20231009. The downloaded public archive contains
+exactly `programs/plug-ins/Burl.o`. That hosted object is 8,759 bytes by section
+total with SHA-256
+`b4cf7203c0c2c1bce551b335445a15dc0a83539e863bf2e273d73137d1f571e1`;
+the `Burl-plugin.zip` SHA-256 is
+`df165ef802fa81f1df2c9f5c58e5be26a18c6eb06819c05b42705926e2be8b1d`.
+The two-byte section-size difference from the local artifact is the retained
+toolchain distinction; the hosted object exposes only the expected NT/runtime
+symbols and retains the `Burl` / `ThBu` metadata.
