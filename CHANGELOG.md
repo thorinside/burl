@@ -11,6 +11,9 @@
   skew.
 - Correct `Input drive` so 0.25x..4x remains transparent gain for ordinary
   source-scaled +/-5 V operation, with soft input protection kept out of range.
+- Add 10x final filter-output normalization after the resonant core and before
+  the oversampled limiter, restoring Eurorack-level LP/BP/HP signals without
+  changing their character.
 - Keep LP, BP, and HP DC-coupled; LP offsets and sub-audio movement remain
   available by design.
 - Allow `None` (`0`) on all eight output routes while preserving their existing

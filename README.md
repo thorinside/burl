@@ -23,8 +23,9 @@ on [GitHub Releases](https://github.com/thorinside/burl/releases).
 
 The `codex/filter-character` branch is an unreleased filter-character
 candidate. It corrects the internal PWM/stepped-CV source, resonance ping
-response, and level-matched transparent `Input drive` behavior while retaining the frozen
-`ThBu` identity and all 50 positional parameters. LP, BP, and HP remain
+response, level-matched transparent `Input drive` behavior, and final
+Eurorack-level filter output normalization while retaining the frozen `ThBu`
+identity and all 50 positional parameters. LP, BP, and HP remain
 DC-coupled; LP can carry slow or steady offsets by design. Every input and
 output route supports `None`, while the eight output defaults remain hardware
 Outputs 1-8. This candidate must
@@ -94,6 +95,9 @@ The test suite currently verifies:
 - the curved Q 0.5..20 resonance mapping, 250 Hz ping tails, silence stability,
   DC-coupled LP/BP/HP behavior, high-resonance harmonic character, and bounded
   oversampled output limiting;
+- final Eurorack-level LP/BP/HP normalization before the limiter, including a
+  3 V minimum default-render gate and proof that the gain cannot feed back into
+  the resonant core;
 - the V1 resistor-network PWM/previous-stepped-CV forcing against a
   level-matched external reference render;
 - the actual NT `Input drive` parameter mapping from 0.25x through 4x,

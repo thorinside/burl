@@ -24,10 +24,13 @@ public:
      *
      * The resonance input is normalized from zero to one. Input compensation,
      * resonant pole-frequency skew, and the optional safety limiter are part of
-     * the filter character rather than host-level output conditioning.
+     * the filter character. Output gain is applied after the core state update
+     * and before the optional limiter, so final normalization cannot feed back
+     * into the resonant response.
      */
     Frame process(float input, float baseCutoffHz, float cutoffOctaves,
-                  float resonance, float sampleRate, bool softLimit);
+                  float resonance, float sampleRate, bool softLimit,
+                  float outputGain = 1.0f);
 
     /** Return 1/Q for the curved Q = 0.5 * 40^resonance mapping. */
     static float resonanceDamping(float resonance);

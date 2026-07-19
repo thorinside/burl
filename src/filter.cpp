@@ -135,7 +135,7 @@ float StateVariableFilter::resonanceDamping(float resonance) {
 
 StateVariableFilter::Frame StateVariableFilter::process(
     float input, float baseCutoffHz, float cutoffOctaves, float resonance,
-    float sampleRate, bool softLimit) {
+    float sampleRate, bool softLimit, float outputGain) {
     const float boundedSampleRate = std::isfinite(sampleRate)
             && sampleRate > 0.0f
         ? sampleRate
@@ -175,9 +175,11 @@ StateVariableFilter::Frame StateVariableFilter::process(
     previousBand_ = finiteClamp(bandPass, 100.0f);
 
     Frame frame;
-    frame.lowPass = finiteClamp(lowPass, 100.0f);
-    frame.bandPass = finiteClamp(bandPass, 100.0f);
-    frame.highPass = finiteClamp(highPass, 100.0f);
+    const float boundedOutputGain = clamp(
+        std::isfinite(outputGain) ? outputGain : 1.0f, 0.0f, 100.0f);
+    frame.lowPass = finiteClamp(lowPass * boundedOutputGain, 100.0f);
+    frame.bandPass = finiteClamp(bandPass * boundedOutputGain, 100.0f);
+    frame.highPass = finiteClamp(highPass * boundedOutputGain, 100.0f);
     if (softLimit) {
         frame.lowPass = softBound(frame.lowPass, 8.0f, 10.0f);
         frame.bandPass = softBound(frame.bandPass, 8.0f, 10.0f);

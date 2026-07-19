@@ -8,6 +8,7 @@
     "max_delta": 0.060028076171875,
     "median_delta": 0.0089111328125,
     "peak_dbfs": -0.46133499840188913,
+    "peak_volts": 9.48272705078125,
     "rms_dbfs": -8.119135934491057,
     "sample_rate": 48000,
     "spectral_flatness": 6.339849184465262e-06
@@ -21,6 +22,7 @@
     "max_delta": 0.928497314453125,
     "median_delta": 0.00872802734375,
     "peak_dbfs": -0.3737258204505111,
+    "peak_volts": 9.578857421875,
     "rms_dbfs": -7.930519567693988,
     "sample_rate": 48000,
     "spectral_flatness": 0.004921428577561063
@@ -34,6 +36,7 @@
     "max_delta": 0.0548095703125,
     "median_delta": 0.007568359375,
     "peak_dbfs": -0.34885607841236255,
+    "peak_volts": 9.6063232421875,
     "rms_dbfs": -5.215373122916592,
     "sample_rate": 48000,
     "spectral_flatness": 1.362934470409586e-07

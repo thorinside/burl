@@ -176,6 +176,10 @@ burl::VoiceParameters filterSourceParameters(bool externalInput) {
 }
 
 void testInternalPwmAndSteppedCvSourceMatchesExternalReference() {
+    // The external reference is assembled from separately rounded PWM and
+    // stepped-CV outputs. Ten microvolts after Burl's 10x output calibration
+    // preserves the original one-microvolt comparison at the filter core.
+    const float calibratedOutputTolerance = 0.000010f;
     const uint8_t seed = 0x5du;
     burl::Voice internalSource(48000.0f, seed);
     burl::Voice externalReference(48000.0f, seed);
@@ -199,11 +203,14 @@ void testInternalPwmAndSteppedCvSourceMatchesExternalReference() {
         const burl::VoiceOutputs referenceOutput = externalReference.process(
             referenceInputs);
 
-        expectNear(sourceOutput.lowPass, referenceOutput.lowPass, 0.000001f,
+        expectNear(sourceOutput.lowPass, referenceOutput.lowPass,
+                   calibratedOutputTolerance,
                    "internal LP source must match the V1 input-network forcing");
-        expectNear(sourceOutput.bandPass, referenceOutput.bandPass, 0.000001f,
+        expectNear(sourceOutput.bandPass, referenceOutput.bandPass,
+                   calibratedOutputTolerance,
                    "internal BP source must match the V1 input-network forcing");
-        expectNear(sourceOutput.highPass, referenceOutput.highPass, 0.000001f,
+        expectNear(sourceOutput.highPass, referenceOutput.highPass,
+                   calibratedOutputTolerance,
                    "internal HP source must match the V1 input-network forcing");
         if (failures != 0) {
             break;

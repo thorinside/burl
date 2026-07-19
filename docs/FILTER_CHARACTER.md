@@ -73,20 +73,29 @@ utility when a destination should not receive the LP offset.
 
 ## Output protection
 
-The optional `Output limit` remains inside the common oversampled filter path.
-It is exactly linear through +/-8 V and approaches +/-10 V progressively.
+The core LP, BP, and HP values receive fixed 10x final normalization after the
+filter state and character feedback have been updated. This restores Eurorack
+level without changing the resonant loop: the default Normal fixture peaks at
+approximately 5.19 V LP, 3.60 V BP, and 4.59 V HP.
+
+The optional `Output limit` follows that normalization inside the common
+oversampled filter path. It is exactly linear through +/-8 V and approaches
++/-10 V progressively. The default fixture has 0% limiter occupancy; 2x Input
+drive begins to touch the LP limiter, while 4x intentionally drives it harder.
 Finite emergency bounds protect the filter state and outputs from invalid or
-extreme inputs without changing ordinary modular-level operation.
+extreme inputs.
 
 ## Retained verification
 
 `tests/filter_test.cpp` directly verifies the Q curve, both impulse tails,
 silence stability, post-excitation decay, DC behavior, bounded drive response,
-and high-resonance even/odd harmonic generation.
+high-resonance even/odd harmonic generation, final output gain, limiter order,
+and proof that output normalization cannot feed back into the core state.
 
 `tests/voice_source_routing_test.cpp` compares the internal-source render
 against a second voice receiving the normalized V1 PWM/RUNCV forcing through
-its external input, with a one-microvolt tolerance. It also requires nominal
+its external input, with a ten-microvolt calibrated-output tolerance equivalent
+to one microvolt at the unnormalized filter core. It also requires nominal
 +/-5 V external square audio at 1x drive to remain out of the limiter.
 
 `tests/plugin_integration_test.cpp` exercises `Input drive` through the actual

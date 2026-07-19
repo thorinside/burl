@@ -53,6 +53,7 @@ def analyze(path: Path) -> dict[str, float | int | str]:
         "sample_rate": sample_rate,
         "rms_dbfs": 20.0 * math.log10(max(rms, 1.0e-15)),
         "peak_dbfs": 20.0 * math.log10(max(float(np.max(np.abs(analysis))), 1.0e-15)),
+        "peak_volts": 10.0 * float(np.max(np.abs(analysis))),
         "high_band_db": db_ratio(float(np.sum(high)), float(np.sum(low))),
         "spectral_flatness": spectral_flatness,
         "median_delta": median_difference,
@@ -69,6 +70,7 @@ def main() -> int:
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--json-output", type=Path)
     parser.add_argument("--assert-clean", action="store_true")
+    parser.add_argument("--assert-eurorack-level", action="store_true")
     args = parser.parse_args()
 
     results = [analyze(path) for path in sorted(args.directory.glob("*.wav"))]
@@ -117,6 +119,31 @@ def main() -> int:
                 f"(>5 kHz={normal_lp['high_band_db']:.2f} dB, "
                 f"clicks={normal_lp['click_count']}, "
                 f"max limiter occupancy={100.0 * limiting:.2f}%)"
+            )
+            return 1
+    if args.assert_eurorack_level:
+        normal_outputs = [
+            result
+            for result in results
+            if result["file"] in {
+                "default_normal_lp.wav",
+                "default_normal_bp.wav",
+                "default_normal_hp.wav",
+            }
+        ]
+        out_of_range = [
+            result
+            for result in normal_outputs
+            if result["peak_volts"] < 3.0 or result["peak_volts"] > 8.0
+        ]
+        if len(normal_outputs) != 3 or out_of_range:
+            levels = ", ".join(
+                f"{result['file']}={result['peak_volts']:.2f} V"
+                for result in normal_outputs
+            )
+            print(
+                "FAIL: default Normal filter outputs must reach Eurorack "
+                f"level without entering the limiter knee ({levels})"
             )
             return 1
     return 0

@@ -26,9 +26,9 @@ The unresolved symbols reported by `make check` are limited to disting NT host
 services, position-independent linkage, memory intrinsics, and firmware math
 runtime functions.
 
-The unreleased filter-character candidate is 8,721 bytes by section total and
+The unreleased filter-character candidate is 8,761 bytes by section total and
 has SHA-256
-`67f632f47521e38aa38939f7aa0ea9fd1a32ba48f9f527d541539efb13b309d0`.
+`107869f478d5c23583945ad30898dd679bc053293f6c69de338a7c34f25e4dce`.
 
 ## API and host integration checks
 

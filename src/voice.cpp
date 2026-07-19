@@ -17,6 +17,7 @@ const float kV1PwmForcingGain = 0.021872f;
 const float kV1SteppedCvForcingGain = 0.044231f;
 const float kV1ExternalAudioForcingGain =
     kV1PwmForcingGain + kV1SteppedCvForcingGain;
+const float kFilterOutputGain = 10.0f;
 
 } // namespace
 
@@ -365,7 +366,7 @@ VoiceOutputs Voice::processInternal(const VoiceInputs& inputs,
     const StateVariableFilter::Frame filterFrame = filter_.process(
         drivenFilterInput, baseCutoff, cutoffOctaves, resonance,
         internalSampleRate,
-        parameters_.safetyLimit);
+        parameters_.safetyLimit, kFilterOutputGain);
 
     VoiceOutputs output;
     output.lowPass = filterFrame.lowPass;

@@ -194,6 +194,50 @@ void testTransparentInputProtection() {
            "out-of-range input must enter progressive protection instead of plain gain");
 }
 
+void testOutputNormalizationPrecedesLimiter() {
+    burl::StateVariableFilter unbounded;
+    burl::StateVariableFilter limited;
+    burl::StateVariableFilter::Frame unboundedOutput = unbounded.process(
+        1.0f, 1000.0f, 0.0f, 0.0f, kSampleRate, false, 10.0f);
+    burl::StateVariableFilter::Frame limitedOutput = limited.process(
+        1.0f, 1000.0f, 0.0f, 0.0f, kSampleRate, true, 10.0f);
+    for (unsigned int frame = 1u; frame < 96000u; ++frame) {
+        unboundedOutput = unbounded.process(
+            1.0f, 1000.0f, 0.0f, 0.0f, kSampleRate, false, 10.0f);
+        limitedOutput = limited.process(
+            1.0f, 1000.0f, 0.0f, 0.0f, kSampleRate, true, 10.0f);
+    }
+    expectNear(unboundedOutput.lowPass, 10.0f, 0.001f,
+               "output normalization must provide the requested final gain");
+    expectNear(limitedOutput.lowPass, 9.0f, 0.001f,
+               "soft limiting must follow final output normalization");
+}
+
+void testOutputNormalizationDoesNotFeedBackIntoCharacter() {
+    burl::StateVariableFilter core;
+    burl::StateVariableFilter normalized;
+    for (unsigned int frame = 0u; frame < 8192u; ++frame) {
+        const float input = (frame % 173u) < 71u ? 0.2f : -0.2f;
+        const burl::StateVariableFilter::Frame coreOutput = core.process(
+            input, 317.0f, 0.13f, 0.81f, kSampleRate, false, 1.0f);
+        const burl::StateVariableFilter::Frame normalizedOutput =
+            normalized.process(
+                input, 317.0f, 0.13f, 0.81f, kSampleRate, false, 10.0f);
+        expectNear(normalizedOutput.lowPass, 10.0f * coreOutput.lowPass,
+                   0.000001f,
+                   "output normalization must not alter LP core state");
+        expectNear(normalizedOutput.bandPass, 10.0f * coreOutput.bandPass,
+                   0.000001f,
+                   "output normalization must not alter BP core state");
+        expectNear(normalizedOutput.highPass, 10.0f * coreOutput.highPass,
+                   0.000001f,
+                   "output normalization must not alter HP core state");
+        if (failures != 0) {
+            break;
+        }
+    }
+}
+
 void testV1NetworkSquareWaveHeadroom() {
     burl::StateVariableFilter filter;
     const unsigned int warmupFrames = 24000u;
@@ -276,6 +320,8 @@ int main() {
     testPingDecayAndNoSelfOscillation();
     testDcCoupledOutputs();
     testTransparentInputProtection();
+    testOutputNormalizationPrecedesLimiter();
+    testOutputNormalizationDoesNotFeedBackIntoCharacter();
     testV1NetworkSquareWaveHeadroom();
     testHighResonanceAllHarmonicCharacter();
 

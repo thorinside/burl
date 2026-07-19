@@ -343,8 +343,9 @@ hypothesis:
 
 The 10% normalized Rungler addition, resonance-squared character depth, and
 character clamp were rejected by this pass. The numerical Q map, quadratic
-input compensation, soft saturation, and output normalization still must be
-treated as hypotheses to A/B against the source-backed baseline, not as
-established properties of the original circuit. The implemented 16x candidate
-oracle and its limitations are recorded in
+input compensation, and soft saturation still must be treated as hypotheses to
+A/B against the source-backed baseline, not as established properties of the
+original circuit. Burl's subsequent fixed 10x output normalization is a
+project calibration to Eurorack range, not a claim about V1 circuitry. The
+implemented 16x candidate oracle and its limitations are recorded in
 `docs/THEORETICAL_AUDIO_VERIFICATION.md`.

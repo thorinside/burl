@@ -53,8 +53,9 @@ common `0.066103` V1 forcing gain. `Input drive` remains a transparent 0.25x to
 and writes deterministic 48 kHz WAV files. `scripts/analyze_theoretical_audio.py`
 measures level, high-band energy, spectral flatness, discontinuities, and
 limiter occupancy. `make theoretical-audio-check` fails if the default Normal
-LP contains a broadband floor or discontinuities, or if any default Normal
-filter output spends more than 1% of the render in the limiter.
+LP contains a broadband floor or discontinuities, if any default Normal filter
+output spends more than 1% of the render in the limiter, or if any of LP/BP/HP
+fails to reach 3 V before the 8 V limiter knee.
 
 The matched retained set is in `verification/theoretical-audio`:
 
@@ -62,13 +63,15 @@ The matched retained set is in `verification/theoretical-audio`:
 |---|---:|---:|---:|---:|
 | v1.0.0 baseline | -13.49 dBFS | -25.98 dBFS | -33.72 dBFS | 0% |
 | first character candidate | -5.22 dBFS | -8.12 dBFS | -7.93 dBFS | 18.69% |
-| corrected V1 candidate | -35.10 dBFS | -40.57 dBFS | -40.34 dBFS | 0% |
+| corrected V1 candidate | -15.10 dBFS | -20.57 dBFS | -20.34 dBFS | 0% |
 
-The corrected render is deliberately much lower than the faulty candidate.
-At the default patch its LP peak is about 0.52 V; 4x Input drive raises the LP
-peak to about 2.08 V without entering the limiter in this fixture. No arbitrary
-post-filter makeup gain was added because the published material does not yet
-justify one universal output normalization.
+The source correction deliberately lowered the internal resonant-core drive.
+Owner listening then confirmed that the character sounded right but identified
+the unnormalized 0.36-0.52 V peaks as line-level rather than Eurorack-level.
+A fixed 10x stage now follows the core state update and precedes the limiter.
+The same default patch reaches 5.19 V LP, 3.60 V BP, and 4.59 V HP with 0%
+limiter occupancy. A retained state-equivalence test proves that these outputs
+are exactly 10 times the unnormalized outputs and cannot alter the filter loop.
 
 The retained `ping_res62_bp_audition.wav` and
 `ping_res100_bp_audition.wav` files have a half-second lead-in and are peak
@@ -89,9 +92,11 @@ and 96 kHz), it:
 5. writes mono 24-bit PCM reference WAVs.
 
 The oracle includes the candidate's analytic Q curve, quadratic input
-compensation, and fixed 0.5-octave-per-volt first-pole feedback. It is therefore
-a numerical oracle for the candidate equations, not independent proof that
-every one of those equations is the unique analog-circuit solution.
+compensation, and fixed 0.5-octave-per-volt first-pole feedback. It deliberately
+compares the unnormalized core; the separate actual-Voice render gates final
+output normalization and limiter order. It is therefore a numerical oracle for
+the candidate equations, not independent proof that every one of those
+equations is the unique analog-circuit solution.
 
 `scripts/compare_filter_reference.py` compares Eco, Normal, and High production
 renders with the oracle by in-band magnitude-spectrum residual and high-band
@@ -127,6 +132,8 @@ Both are included in `make verify`.
   quadratic input-compensation curve.
 - `Input drive`, the input and output soft bounds, and their curves are Burl
   safety/performance features, not documented V1 circuit controls.
+- The fixed 10x output stage is a Burl calibration to the documented +/-5 V
+  Eurorack range and owner level feedback, not a claimed V1 component gain.
 - The fixed character coefficient is component-derived, but the one-sample
   digital delay and full nonlinear loop still need listening comparison.
 - The retained 48 kHz listening renders are 16-bit convenience artifacts; the

@@ -176,10 +176,10 @@ The filter implementation, high-rate renderer, analysis scripts, lookup
 values, protection curves, and tests are project-original code. The V1 input
 coefficients and fixed character-path magnitude are independently calculated
 from published component values; the Q curve, quadratic input compensation,
-Input drive, and limiter curves remain project-specific hypotheses rather than
-claims about the original circuit. All new C++ sources retain the project MIT
-SPDX and copyright notice, and the frozen factory and positional parameter ABI
-remain unchanged.
+Input drive, limiter curves, and fixed 10x Eurorack output calibration remain
+project-specific choices rather than claims about the original circuit. All
+new C++ sources retain the project MIT SPDX and copyright notice, and the
+frozen factory and positional parameter ABI remain unchanged.
 
 **Review conclusion:** the independent-development finding extends to the
 filter-character candidate. Release reassessment still requires a fixed source

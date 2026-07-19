@@ -101,7 +101,7 @@ theoretical-audio: $(THEORETICAL_AUDIO_BINARY)
 	python3 scripts/analyze_theoretical_audio.py $(THEORETICAL_AUDIO_DIR)
 
 theoretical-audio-check: theoretical-audio
-	python3 scripts/analyze_theoretical_audio.py $(THEORETICAL_AUDIO_DIR) --assert-clean
+	python3 scripts/analyze_theoretical_audio.py $(THEORETICAL_AUDIO_DIR) --assert-clean --assert-eurorack-level
 
 $(FILTER_REFERENCE_BINARY): tools/render_filter_reference.cpp src/filter.cpp include/burl/filter.hpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) src/filter.cpp tools/render_filter_reference.cpp -o $@

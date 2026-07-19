@@ -42,7 +42,8 @@ step:
   is selected and the internal oscillator has not produced an edge; and
 - a second identically configured voice receiving the normalized V1
   PWM/RUNCV forcing through its external audio input matches LP, BP, and HP
-  samples within one microvolt for 8,192 Eco-mode frames; and
+  samples within ten microvolts after final output calibration (one microvolt
+  at the unnormalized filter core) for 8,192 Eco-mode frames; and
 - a nominal +/-5 V external square at 1x drive and 62% resonance spends no
   more than 1% of a long render in the output limiter.
 
