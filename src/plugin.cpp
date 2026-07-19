@@ -537,7 +537,7 @@ void step(_NT_algorithm* self, float* busFrames, int numFramesBy4) {
 }
 
 bool draw(_NT_algorithm* self) {
-    BurlAlgorithm* algorithm = static_cast<BurlAlgorithm*>(self);
+    const BurlAlgorithm* algorithm = static_cast<BurlAlgorithm*>(self);
     const burl::VoiceStatus status = algorithm->displayStatus;
     NT_drawText(0, 18, "Burl");
 

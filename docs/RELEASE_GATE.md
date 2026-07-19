@@ -122,6 +122,7 @@ This evidence completes AC-025's branding requirement. Together with the
 dependency, build, host, hardware, and owner records above, the distribution
 gate is satisfied.
 
-Version 1.0.0 is release-ready. No public source, binary upload, tag, remote, or
-hosted release is created by this record; publication remains an explicit owner
-action.
+Version 1.0.0 is release-ready. Public releases are created only from explicit
+`v*` version tags: `.github/workflows/release.yaml` repeats full verification,
+packages `programs/plug-ins/Burl.o` as `Burl-plugin.zip`, and attaches the
+archive to the matching GitHub Release.

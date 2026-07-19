@@ -115,13 +115,13 @@ class Voice {
 public:
     explicit Voice(float sampleRate, uint8_t seed = 1u);
 
-    void setSampleRate(float sampleRate);
+    void setSampleRate(float newSampleRate);
     float sampleRate() const;
 
-    void setParameters(const VoiceParameters& parameters);
+    void setParameters(const VoiceParameters& newParameters);
     const VoiceParameters& parameters() const;
 
-    void setSeed(uint8_t seed);
+    void setSeed(uint8_t newSeed);
     uint8_t seed() const;
     void reset();
 

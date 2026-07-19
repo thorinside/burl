@@ -25,10 +25,10 @@ public:
 
     explicit PatternGenerator(uint8_t seed = 1u);
 
-    void setMode(Mode mode);
+    void setMode(Mode newMode);
     Mode mode() const;
 
-    void setSeed(uint8_t seed);
+    void setSeed(uint8_t newSeed);
     uint8_t seed() const;
     void reset();
 

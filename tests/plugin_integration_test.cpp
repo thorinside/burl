@@ -149,7 +149,7 @@ _NT_algorithm* constructTestAlgorithm(
 
 void applyParameterSnapshot(const _NT_factory* factory,
                             _NT_algorithm* algorithm,
-                            std::vector<int16_t>& values, bool reverse) {
+                            const std::vector<int16_t>& values, bool reverse) {
     algorithm->v = values.data();
     algorithm->vIncludingCommon = values.data();
     if (reverse) {

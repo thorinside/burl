@@ -18,8 +18,8 @@ the retained build and bench record is in
 [the native build and hardware verification](docs/NATIVE_BUILD_AND_HARDWARE.md).
 The product owner completed the listening, control, preset, and processor-load
 acceptance checks on the target module. The project is prepared for a free,
-open-source MIT release; publication itself is a separate owner action and has
-not been performed by this repository record.
+open-source MIT release. Version-tagged builds and release downloads are hosted
+on [GitHub Releases](https://github.com/thorinside/burl/releases).
 
 ## Release metadata
 
@@ -31,6 +31,13 @@ not been performed by this repository record.
   `dsp`, `chaotic-synthesizer`, `feedback-shift-register`, `cpp`
 - **Release source:** implementation and verified object baseline
   `7def2805849cd98dc77b7ee6d860e054db54b1b5`
+
+## Install
+
+Download `Burl-plugin.zip` from the desired
+[GitHub Release](https://github.com/thorinside/burl/releases), extract it at the
+root of the disting NT SD card, and rescan plug-ins. The archive installs
+`programs/plug-ins/Burl.o`.
 
 ## Build and test
 
@@ -47,6 +54,10 @@ make verify
 `plugins/Burl.o`, checks its unresolved firmware/runtime symbols, and reports
 its section sizes. With a connected module, `make push` transfers the object
 using NT Push. Generated objects remain ignored by Git.
+
+Pushing a version tag such as `v1.0.0` runs the same verification on GitHub
+Actions, packages the object in the disting NT SD-card layout, and creates a
+GitHub Release with the zip attached.
 
 The test suite currently verifies:
 

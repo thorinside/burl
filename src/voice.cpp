@@ -68,9 +68,9 @@ Voice::Voice(float sampleRate, uint8_t seed)
     reset();
 }
 
-void Voice::setSampleRate(float sampleRate) {
-    sampleRate_ = std::isfinite(sampleRate) && sampleRate > 0.0f
-        ? sampleRate
+void Voice::setSampleRate(float newSampleRate) {
+    sampleRate_ = std::isfinite(newSampleRate) && newSampleRate > 0.0f
+        ? newSampleRate
         : 48000.0f;
 }
 
@@ -78,8 +78,8 @@ float Voice::sampleRate() const {
     return sampleRate_;
 }
 
-void Voice::setParameters(const VoiceParameters& parameters) {
-    parameters_ = parameters;
+void Voice::setParameters(const VoiceParameters& newParameters) {
+    parameters_ = newParameters;
     const PatternGenerator::Mode requestedMode = parameters_.maximal127Mode
         ? PatternGenerator::Maximal127
         : PatternGenerator::EightSixteen;
@@ -95,9 +95,9 @@ const VoiceParameters& Voice::parameters() const {
     return parameters_;
 }
 
-void Voice::setSeed(uint8_t seed) {
-    configuredSeed_ = seed;
-    pattern_.setSeed(seed);
+void Voice::setSeed(uint8_t newSeed) {
+    configuredSeed_ = newSeed;
+    pattern_.setSeed(newSeed);
 }
 
 uint8_t Voice::seed() const {

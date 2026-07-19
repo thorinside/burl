@@ -1,0 +1,57 @@
+name: Build and Release Burl
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-dev zip unzip
+
+      - name: Verify toolchain
+        run: |
+          arm-none-eabi-g++ --version
+          arm-none-eabi-nm --version
+
+      - name: Build and verify plugin
+        run: |
+          make clean
+          make verify
+
+      - name: Prepare release archive
+        run: |
+          mkdir -p release/programs/plug-ins
+          cp plugins/Burl.o release/programs/plug-ins/
+          cd release
+          zip -r ../Burl-plugin.zip programs
+          cd ..
+          unzip -l Burl-plugin.zip
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: Burl-plugin
+          path: Burl-plugin.zip
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Burl-plugin.zip
+          generate_release_notes: true
