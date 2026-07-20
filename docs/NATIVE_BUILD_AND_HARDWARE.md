@@ -137,3 +137,14 @@ hardware baseline for ordinary operation. The candidate was not pushed merely
 to repeat that unchanged audition because NT Push reloads the current preset
 and can discard unsaved hardware edits; the new defensive paths are retained
 in the sanitizer-backed host gate.
+
+GitHub Actions run `29710241621`, attempt 3, rebuilt the tagged release on
+Ubuntu 24.04 with `arm-none-eabi-g++` 13.2.1 20231009 and completed
+successfully. The downloaded public archive contains exactly
+`programs/plug-ins/Burl.o`. That hosted object is 9,011 bytes by section total
+with SHA-256
+`19a270244649d2d3cbd96ab18a178a0d86ec6aa32701c616f709560f6ad730a3`;
+the hosted `Burl-plugin.zip` SHA-256 is
+`2d7a1030c42b4111d8173e0ff32ea6e33cee8ec763dcb35e1199af1b1540d774`.
+The hosted object exposes only the expected NT/runtime symbols and retains the
+`Burl` / `ThBu` metadata.

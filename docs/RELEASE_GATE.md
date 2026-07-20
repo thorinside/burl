@@ -201,7 +201,20 @@ host block without changing their results.
   The new defensive behavior is exercised by the sanitizer-backed host gate.
 - **Provenance:** the 1.0.2 delta review records no new implementation source or
   dependency and retains the pinned API-v13 rights record.
+- **Public release tag:** `v1.0.2`, resolving to source commit
+  `12347c4e20aecd743b908a1edd8a6c8ea04ff236`.
+- **Public GitHub build:** Actions run `29710241621`, attempt 3, on Ubuntu 24.04
+  with `arm-none-eabi-g++` 13.2.1 20231009 completed successfully. The
+  downloaded hosted `Burl.o` is 9,011 bytes by section total with SHA-256
+  `19a270244649d2d3cbd96ab18a178a0d86ec6aa32701c616f709560f6ad730a3`;
+  the hosted `Burl-plugin.zip` SHA-256 is
+  `2d7a1030c42b4111d8173e0ff32ea6e33cee8ec763dcb35e1199af1b1540d774`.
+- **Public release:** [Burl 1.0.2](https://github.com/thorinside/burl/releases/tag/v1.0.2)
+  is neither a draft nor a prerelease and is the repository's latest release.
 
-The owner authorized shipment on 2026-07-19. The public tag, hosted workflow
-run, and hosted artifact checksums are appended after the tag-triggered build
-completes.
+The owner authorized shipment on 2026-07-19. Workflow attempts 1 and 2 passed
+verification, packaging, and artifact upload but encountered HTTP 503 from the
+GitHub Releases API during a declared GitHub Actions/API incident. The tag was
+not moved. The CI-built artifact was published when service recovered, and the
+successful third workflow attempt replaced it with the final hosted artifact
+recorded above on 2026-07-20.

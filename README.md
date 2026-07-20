@@ -43,6 +43,11 @@ floating voice parameter. See the
   `f991af505b648d618df9c24922ac9d183185adcd`
 - **Version 1.0.2 local object SHA-256:**
   `8d6af42a499e7c871699235b0759dd57d52054a85c86d4f50174fa2929a58d64`
+- **Version 1.0.2 tag:** `12347c4e20aecd743b908a1edd8a6c8ea04ff236`
+- **Version 1.0.2 hosted object SHA-256:**
+  `19a270244649d2d3cbd96ab18a178a0d86ec6aa32701c616f709560f6ad730a3`
+- **Version 1.0.2 hosted archive SHA-256:**
+  `2d7a1030c42b4111d8173e0ff32ea6e33cee8ec763dcb35e1199af1b1540d774`
 - **Version 1.0.1 implementation and hardware baseline:**
   `ca97c425acc9390d0ce2715c3b13ed6967061f19`
 - **Hardware-validated object SHA-256:**
