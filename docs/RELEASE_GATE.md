@@ -6,7 +6,7 @@ project risk record, not legal advice.
 ## Recorded decisions
 
 - **Public name:** Burl.
-- **Release version:** 1.0.1.
+- **Release version:** 1.0.2.
 - **Release author:** Neal Sanche.
 - **Project homepage:** <https://github.com/thorinside/burl>.
 - **Repository tags:** `disting-nt`, `eurorack`, `synthesizer`, `audio-plugin`,
@@ -177,3 +177,31 @@ packaging because the workflow lacked NumPy for the new audio verifier; no
 release or asset was created. Commit
 `d351fe935e29a7c0c1d12a1ca43cc2e2445797de` added that release dependency, and
 the replacement tag run completed the verified public release recorded above.
+
+## Version 1.0.2 parameter-safety release record
+
+Version 1.0.2 preserves the public `ThBu` factory GUID, all 50 positional
+parameters and defaults, pages, routes, v1 preset format, and finite DSP signal
+path. It prevents non-finite host parameter values from poisoning oscillator or
+filter state and resolves output destinations and Add/Replace modes once per
+host block without changing their results.
+
+- **Implementation baseline:**
+  `f991af505b648d618df9c24922ac9d183185adcd`.
+- **Local verified object:** 9,009 bytes by section total, SHA-256
+  `8d6af42a499e7c871699235b0759dd57d52054a85c86d4f50174fa2929a58d64`.
+- **Verification:** `make clean && make verify` passed the host, ASan/UBSan,
+  deterministic WAV, five-rate 16x oracle, native-build, undefined-symbol,
+  allocation, size, branding, preset, routing, reset, and safety gates. The
+  stress matrix covers NaN and both infinities across all 16 floating voice
+  parameters and all three quality modes.
+- **Compatibility and hardware evidence:** the change preserves ordinary
+  finite processing, ABI, preset, and routing behavior, so the accepted 1.0.1
+  physical listening and processor-load record remains the hardware baseline.
+  The new defensive behavior is exercised by the sanitizer-backed host gate.
+- **Provenance:** the 1.0.2 delta review records no new implementation source or
+  dependency and retains the pinned API-v13 rights record.
+
+The owner authorized shipment on 2026-07-19. The public tag, hosted workflow
+run, and hosted artifact checksums are appended after the tag-triggered build
+completes.

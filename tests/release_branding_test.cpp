@@ -100,13 +100,13 @@ int main() {
     expectContains(normalizeWhitespace(releaseGate), expectedAttribution,
                    "release-gate attribution record");
 
-    expectContains(readme, "**Version:** 1.0.1", "release version");
+    expectContains(readme, "**Version:** 1.0.2", "release version");
     expectContains(readme, "**Author:** Neal Sanche", "release author");
     expectContains(readme, "https://github.com/thorinside/burl",
                    "release homepage");
     expectContains(readme, "`disting-nt`", "release tags");
     expectContains(releaseGate,
-                   "ca97c425acc9390d0ce2715c3b13ed6967061f19",
+                   "f991af505b648d618df9c24922ac9d183185adcd",
                    "release source commit");
     expectContains(releaseGate,
                    "cd12d876dbe060859828053efab1cbc98c9df251",

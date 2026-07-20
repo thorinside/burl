@@ -31,6 +31,11 @@ The hardware-accepted 1.0.1 implementation baseline
 has local SHA-256
 `107869f478d5c23583945ad30898dd679bc053293f6c69de338a7c34f25e4dce`.
 
+The 1.0.2 implementation baseline
+`f991af505b648d618df9c24922ac9d183185adcd` is 9,009 bytes by section total and
+has local SHA-256
+`8d6af42a499e7c871699235b0759dd57d52054a85c86d4f50174fa2929a58d64`.
+
 ## API and host integration checks
 
 The retained plug-in integration test verifies:
@@ -114,3 +119,21 @@ the `Burl-plugin.zip` SHA-256 is
 The two-byte section-size difference from the local artifact is the retained
 toolchain distinction; the hosted object exposes only the expected NT/runtime
 symbols and retains the `Burl` / `ThBu` metadata.
+
+## Version 1.0.2 release verification
+
+On 2026-07-19, `make clean && make verify` passed the complete host,
+ASan/UBSan, deterministic WAV, five-rate 16x oracle, native-build,
+undefined-symbol, allocation, size, branding, preset, routing, reset, and
+safety gates for the implementation baseline above. The new stress matrix
+exercises NaN, positive infinity, and negative infinity for all 16 floating
+voice parameters in Eco, Normal, and High quality and proves finite output plus
+recovery after valid values are restored.
+
+The patch does not change the finite DSP equations, factory GUID, positional
+parameter ABI, defaults, preset format, or Add/Replace routing results. The
+physical 1.0.1 listening and processor-load acceptance therefore remains the
+hardware baseline for ordinary operation. The candidate was not pushed merely
+to repeat that unchanged audition because NT Push reloads the current preset
+and can discard unsaved hardware edits; the new defensive paths are retained
+in the sanitizer-backed host gate.

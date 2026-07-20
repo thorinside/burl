@@ -7,7 +7,7 @@ a triangle comparator, and a resonant multimode filter.
 
 ## Project status
 
-Burl 1.0.1 is a released disting NT C++ API v13 plug-in with factory GUID
+Burl 1.0.2 is a released disting NT C++ API v13 plug-in with factory GUID
 `ThBu` and a host-tested integrated DSP voice. The plug-in exposes 50
 parameters on 11 standard pages, nine optional input routes, and eight
 independently routed Add/Replace outputs.
@@ -21,25 +21,28 @@ acceptance checks on the target module. The project is free, open-source MIT
 software. Version-tagged builds and release downloads are hosted on
 [GitHub Releases](https://github.com/thorinside/burl/releases).
 
-Burl 1.0.1 corrects the internal PWM/stepped-CV source, resonance ping
-response, level-matched transparent `Input drive` behavior, and final
-Eurorack-level filter output normalization while retaining the frozen `ThBu`
-identity and all 50 positional parameters. LP, BP, and HP remain
-DC-coupled; LP can carry slow or steady offsets by design. Every input and
-output route supports `None`, while the eight output defaults remain hardware
-Outputs 1-8. The owner accepted the loaded hardware sound and the three-mode
-processor-load envelope before release. See the
+Burl 1.0.2 prevents non-finite host parameter values from poisoning oscillator
+or filter state and resolves output bus destinations and Add/Replace modes once
+per host block. It preserves the 1.0.1 finite signal path, frozen `ThBu`
+identity, all 50 positional parameters and defaults, preset format, and default
+routing. The 1.0.1 physical listening and processor-load evidence remains the
+hardware baseline; 1.0.2 adds sanitizer-backed recovery coverage for every
+floating voice parameter. See the
 [filter verification record](docs/FILTER_CHARACTER.md) and
 [release notes](CHANGELOG.md).
 
 ## Release metadata
 
-- **Version:** 1.0.1
+- **Version:** 1.0.2
 - **Author:** Neal Sanche
 - **Homepage:** <https://github.com/thorinside/burl>
 - **License:** MIT
 - **Repository tags:** `disting-nt`, `eurorack`, `synthesizer`, `audio-plugin`,
   `dsp`, `chaotic-synthesizer`, `feedback-shift-register`, `cpp`
+- **Version 1.0.2 implementation baseline:**
+  `f991af505b648d618df9c24922ac9d183185adcd`
+- **Version 1.0.2 local object SHA-256:**
+  `8d6af42a499e7c871699235b0759dd57d52054a85c86d4f50174fa2929a58d64`
 - **Version 1.0.1 implementation and hardware baseline:**
   `ca97c425acc9390d0ce2715c3b13ed6967061f19`
 - **Hardware-validated object SHA-256:**

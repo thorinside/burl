@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.0.2 - 2026-07-19
+
 - Prevent non-finite public DSP parameters from poisoning oscillator state or
   reaching undefined resonance-table index conversion, with sanitizer-backed
   recovery coverage for all 16 floating voice parameters.

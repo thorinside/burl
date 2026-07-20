@@ -186,3 +186,35 @@ frozen factory and positional parameter ABI remain unchanged.
 `ca97c425acc9390d0ce2715c3b13ed6967061f19`; full host/native verification,
 physical-module listening, updated processor-load measurements, and the local
 artifact hash are retained in the release records.
+
+## Version 1.0.2 safety delta review
+
+Review date: 2026-07-19
+
+Implementation baseline reviewed:
+`f991af505b648d618df9c24922ac9d183185adcd`
+
+This delta review covers the non-finite resonance conditioning, oscillator
+state recovery, block-rate output-destination resolution, focused filter and
+voice stress tests, and the corresponding documentation changes after the
+1.0.1 baseline.
+
+1. The implementation is a direct defensive extension of the existing
+   project-owned filter, voice, and native adapter. It adds no synthesis
+   algorithm, circuit derivation, lookup source, or copied third-party
+   implementation.
+2. The resonance endpoint policy, finite-state recovery, and per-block routing
+   cache were authored against Burl's existing interfaces and the documented
+   disting NT host contract. All new C++ changes retain the project copyright
+   and MIT SPDX notice.
+3. No dependency was added or changed. The only compiled external source
+   dependency remains the official Expert Sleepers `distingNT_API` submodule
+   pinned to `cd12d876dbe060859828053efab1cbc98c9df251` (`v1.15.0`, API v13),
+   with its compatible MIT notice retained.
+4. The `ThBu` factory identity, all 50 positional parameters, defaults, pages,
+   routes, and preset format remain unchanged. The new tests exercise the
+   defensive behavior without importing external fixtures or implementations.
+
+**Review conclusion:** the independent-development and dependency-rights
+findings extend to Burl 1.0.2 at the recorded implementation baseline. No new
+or unrecorded distributed source dependency is present.
